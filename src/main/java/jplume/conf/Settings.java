@@ -47,6 +47,12 @@ public class Settings {
 		return val == null ? defaultVal : val.toString();
 	}
 	
+	public static boolean getBoolean(String key, boolean defaultVal){
+		Object val =  jsEngine.get(key);
+		return val == null ? defaultVal : (Boolean)val;
+	}
+	
+	
 	public static String get(String key){
 		return get(key, null);
 	}
@@ -57,5 +63,13 @@ public class Settings {
 	
 	public static String defaultContentType() {
 		return get("DEFAULT_CONTENT_TYPE", "text/html");
+	}
+	
+	public static String templateEngineClass() {
+		return get("TEMPLATE_ENGINE", "jplume.template.freemarker.FreemarkerEngine");
+	}
+	
+	public static boolean useEtags() {
+		return getBoolean("USE_ETAGS", false);
 	}
 }

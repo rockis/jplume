@@ -4,8 +4,14 @@
 
 ROOT_URLCONF = "jplume/example/example";
 
-MEDIA_ROOT = "/media/nta/workspace/4.5.88/04_Code/web/www"
+MEDIA_ROOT = "/media/ads-m/workspace/4.5.88.4/04_Code/web/www"
 	
+USE_ETAGS = true
 	
 DEFAULT_CONTENT_TYPE = 'text/html'
 DEFAULT_CHARSET = 'utf-8'
+	
+	
+TEMPLATE_ENGINE = "jplume.template.freemarker.FreemarkerEngine"
+	
+LOCALE = "en_US"

@@ -12,6 +12,7 @@ import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 
 import jplume.annotations.View;
+import jplume.http.HttpResponse;
 import jplume.http.Request;
 import jplume.http.Response;
 
@@ -28,7 +29,11 @@ public class RequestDispatcher {
 	}
 
 	public Response dispatch(Request request) throws URLDispatchException{
-		return patterns.dispatch(request);
+		Response resp = patterns.dispatch(request);
+		if (resp == null) {
+			return HttpResponse.notFound();
+		}
+		return resp;
 	}
 
 	public static DispatcherProvider patterns(String actionClassName,
