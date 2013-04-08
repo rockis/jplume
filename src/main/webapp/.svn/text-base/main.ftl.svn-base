@@ -1,0 +1,50 @@
+<#macro body>
+<#assign category = req.getParameter('category')>
+<@html.head>
+<link href="${base}/includes/styles/left.css" rel="stylesheet" type="text/css" />
+<link href="${base}/includes/3rd/bulletin/bulletin.css" media="all" rel="Stylesheet" type="text/css" />
+<link href="${base}/includes/styles/button.css" rel="stylesheet" type="text/css" />
+
+<link href="${base}/includes/styles/link.css" rel="stylesheet" type="text/css" />
+<link href="${base}/includes/styles/form.css" rel="stylesheet" type="text/css" />
+<script src="${base}/includes/3rd/rico.js" type="text/javascript"></script>
+<script src="${base}/includes/scripts/cavy.js" type="text/javascript"></script>
+<script>
+	var panel1, panel2;
+	window.onload = function() {
+		new Rico.Effect.Round("div", "outer",{corners:""});
+		panel1 = new Cavy.ShrinkablePane('content_1',5,200,{min:false});
+		panel2 = new Cavy.ShrinkablePane('content_2',5,200,{min:false});
+		panel3 = new Cavy.ShrinkablePane('content_3',5,200,{min:false});
+	}
+	function GetLeftUrl (url) {
+		window.parent.frames["mainFrame"].window.location.href = url;
+	}
+	function switchImg(img) {
+		var tmp = img.src;
+		img.src = img.getAttribute('d-src');
+		img.setAttribute('d-src',tmp);
+	}
+	var menuA = new Array("menu_1_1", "menu_1_2", "menu_1_3", "menu_1_4", "menu_1_5", "menu_1_6", "menu_1_7", "menu_1_8", "menu_1_9");
+	var oldID = 0;
+	//初始化状态
+	function ShowCurrent (itemID) {
+		currentItem = document.getElementById(itemID);
+		var idStr = currentItem.id;
+		var currentID = 0;
+		for (var i=0; i<menuA.length; i++) {
+			if (idStr == menuA[i]) {
+				currentID = i;
+			}
+		}
+		document.getElementById(menuA[oldID]).className = "menu_unselected";
+		currentItem.className = "menu_selected";
+		oldID = currentID;
+	}
+</script>
+</@html.head>
+<body>
+<#nested/>
+</body>
+</html>
+</#macro>

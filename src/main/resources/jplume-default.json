@@ -1,0 +1,11 @@
+/**
+ * Default JPlume settings. Override these with settings in your project
+ */
+
+ROOT_URLCONF = "jplume/example/example";
+
+MEDIA_ROOT = "/media/nta/workspace/4.5.88/04_Code/web/www"
+	
+	
+DEFAULT_CONTENT_TYPE = 'text/html'
+DEFAULT_CHARSET = 'utf-8'
