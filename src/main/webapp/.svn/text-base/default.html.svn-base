@@ -1,7 +1,0 @@
-<html>
-<head>
-<script>
-top.document.location.href="auth/login.action"
-</script>
-</head>
-</html>
