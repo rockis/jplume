@@ -61,6 +61,7 @@ public class FrontFilter implements Filter{
 			return;
 		}
 		resp.apply((HttpServletResponse)_resp);
+
 	}
 
 	private Response beforeDispatch(Request request) {
@@ -122,7 +123,6 @@ public class FrontFilter implements Filter{
 				throw new ServletException("Cannot create interceptor:" + className, e);
 			}
 		}
-		
 	}
 	
 }

@@ -10,6 +10,9 @@ import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class Settings {
 
 	public static final String JPLUME_USER_CONFIG_FILE = "USER_CONFIG_FILE";
@@ -18,6 +21,7 @@ public class Settings {
 	
 	private static final String defaultConfigFile = "jplume-default.json";
 	
+	private static Logger logger = LoggerFactory.getLogger(Settings.class);
 	
 	public static void initalize(String userConfigFile) throws InvalidConfigException {
 		ScriptEngineManager sem = new ScriptEngineManager();
@@ -37,6 +41,8 @@ public class Settings {
 			}
 			jsEngine.eval(new InputStreamReader(config.openStream()));
 		} catch (ScriptException e) {
+			e.printStackTrace();
+			logger.error("Config file has error", e);
 			throw new InvalidConfigException("The config file '" + configFile + "' has error ", e);
 		} catch (IOException e) {
 			throw new InvalidConfigException("Could not read config file '"
@@ -54,13 +60,13 @@ public class Settings {
 		return val == null ? defaultVal : (Boolean)val;
 	}
 	
+	public static String get(String key){
+		return get(key, null);
+	}
+	
 	@SuppressWarnings("unchecked")
 	public static <T1, T2> Map<T1, T2> getMap(String key) {
 		return (Map<T1, T2>)jsEngine.get(key);
-	}
-	
-	public static String get(String key){
-		return get(key, null);
 	}
 
 	@SuppressWarnings("unchecked")
