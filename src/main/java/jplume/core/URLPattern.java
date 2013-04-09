@@ -6,10 +6,10 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import jplume.annotations.View;
 import jplume.http.Request;
 import jplume.http.Response;
 import jplume.view.ViewMethod;
+import jplume.view.annotations.View;
 
 public class URLPattern implements DispatcherProvider {
 

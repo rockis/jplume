@@ -1,4 +1,4 @@
-package jplume.annotations;
+package jplume.view.annotations;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -7,7 +7,6 @@ import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.PARAMETER)
-
 public @interface PathVar {
 	
 	public int index() default 0;

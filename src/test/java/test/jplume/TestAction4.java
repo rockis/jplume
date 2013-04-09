@@ -1,6 +1,6 @@
 package test.jplume;
 
-import jplume.annotations.View;
+import jplume.view.annotations.View;
 
 public class TestAction4 {
 

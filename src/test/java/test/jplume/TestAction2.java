@@ -1,6 +1,6 @@
 package test.jplume;
 
-import jplume.annotations.PathVar;
+import jplume.view.annotations.PathVar;
 
 public class TestAction2 {
 

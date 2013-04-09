@@ -7,12 +7,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeMap;
 
-import jplume.annotations.PathVar;
 import jplume.converters.Converter;
 import jplume.core.URLPatternException;
 import jplume.http.HttpResponse;
 import jplume.http.Request;
 import jplume.http.Response;
+import jplume.view.annotations.PathVar;
+import jplume.view.annotations.RequireHttpMethod;
 
 public class ViewMethod {
 	
@@ -20,10 +21,13 @@ public class ViewMethod {
 	private final TreeMap<Integer, Argument> arguments;
 	private final boolean requireRequest;
 	
-	public ViewMethod(Method method, TreeMap<Integer, Argument> arguments, boolean requireRequest) {
+	private final List<String> requireMethods;
+	
+	private ViewMethod(Method method, TreeMap<Integer, Argument> arguments, boolean requireRequest, List<String> requireMethods) {
 		this.method = method;
 		this.arguments = arguments;
 		this.requireRequest = requireRequest;
+		this.requireMethods = requireMethods;
 	}
 	
 	public static ViewMethod create(Method method) throws URLPatternException {
@@ -53,7 +57,13 @@ public class ViewMethod {
 			}
 		}
 		
-		return new ViewMethod(method, arguments, requireRequest);
+		List<String> requireMethods = new ArrayList<String>();
+		for (Annotation annotation : method.getAnnotations()) {
+			if (annotation instanceof RequireHttpMethod) {
+				requireMethods.add(((RequireHttpMethod)annotation).method().toLowerCase());
+			}
+		}
+		return new ViewMethod(method, arguments, requireRequest, requireMethods);
 	}
 	
 	public boolean match(String[] pathVars) {
@@ -78,8 +88,11 @@ public class ViewMethod {
 		}
 	}
 	
-	public Response handle(Request request, String[] pathVars) {
+	public Response handle(Request request, String... pathVars) {
 		try {
+			if (requireMethods.size() > 0 && requireMethods.indexOf(request.getMethod().toLowerCase()) < 0){
+				return HttpResponse.forbidden();
+			}
 			Object action = newAction();
 			List<Object> arguments = new ArrayList<Object>();
 			for(Argument argument : this.arguments.values()) {
@@ -102,12 +115,12 @@ public class ViewMethod {
 		} catch (IllegalArgumentException e) {
 			return HttpResponse.internalError(e.toString());
 		} catch (InvocationTargetException e) {
+			e.printStackTrace();
 			return HttpResponse.internalError(e.toString());
 		}
 	}
 	
 	private static class Argument {
-		
 		private int index;
 		private Class<?> type;
 		
@@ -115,6 +128,5 @@ public class ViewMethod {
 			this.index = index;
 			this.type = type;
 		}
-		
 	}
 }

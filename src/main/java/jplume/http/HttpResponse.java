@@ -3,8 +3,6 @@ package jplume.http;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -16,10 +14,6 @@ public class HttpResponse extends AbstractResponse {
 	
 	private InputStream content = null;
 	
-	private int contentLength    = -1;
-	
-	private List<String[]> headers = new ArrayList<String[]>();
-	
 	public HttpResponse(int status, String mimeType, InputStream content, String contentType) {
 		super(status);
 		this.charset = Settings.defaultCharset();
@@ -30,8 +24,8 @@ public class HttpResponse extends AbstractResponse {
 			contentType = Settings.defaultContentType() + "; charset=" + this.charset;
 		}
 		
-		this.content     = content;
-		this.headers.add(new String[]{"Content-Type", contentType});
+		this.content = content;
+		addHeader("Content-Type", contentType);
 	}
 	
 	public HttpResponse(int status, String mimeType, InputStream content) {
@@ -71,27 +65,21 @@ public class HttpResponse extends AbstractResponse {
 		return new HttpResponse(HttpServletResponse.SC_NOT_FOUND);
 	}
 	
+	public static HttpResponse forbidden() {
+		return new HttpResponse(HttpServletResponse.SC_FORBIDDEN);
+	}
+	
 	public static HttpResponse internalError(String content) {
 		HttpResponse resp =  create(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, content);
 		resp.setContentLength(content.length());
 		return resp;
 	}
 	
-	public void addHeader(String key, String value) {
-		this.headers.add(new String[]{ key, value});
-	}
-	
-	public void setContentLength(int contentLength) {
-		this.contentLength = contentLength;
-	}
-
 	@Override
 	public void apply(HttpServletResponse resp) {
 		try {
 			super.apply(resp);
-			for (String[] header : this.headers) {
-				resp.addHeader(header[0], header[1]);
-			}
+			
 			if (contentLength > 0) {
 				resp.setContentLength(contentLength);
 			}

@@ -1,3 +1,0 @@
-<#list fieldErrors?keys as k>
-${k} : ${fieldErrors[k]}<br/>
-</#list>

@@ -2,19 +2,10 @@ package jplume.http;
 
 import javax.servlet.http.HttpServletRequest;
 
-public class HttpRequest implements Request {
+public class HttpRequest extends AbstractRequest {
 
-	private final HttpServletRequest rawRequest;
-	
 	public HttpRequest(HttpServletRequest request) {
-		this.rawRequest = request;
+		super(request);
 	}
 	
-	public String getPath() {
-		return rawRequest.getServletPath();
-	}
-	
-	public Query getQuery() {
-		return new Query(this.rawRequest);
-	}
 }

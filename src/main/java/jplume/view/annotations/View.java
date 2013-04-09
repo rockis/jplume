@@ -1,4 +1,4 @@
-package jplume.annotations;
+package jplume.view.annotations;
 
 import java.lang.annotation.*;
 
