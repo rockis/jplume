@@ -6,6 +6,8 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
+import jplume.converters.Converter;
+
 public abstract class AbstractRequest implements Request {
 
 	protected final HttpServletRequest rawRequest;
@@ -22,14 +24,25 @@ public abstract class AbstractRequest implements Request {
 		return meta;
 	}
 	
+	
+	@Override
+	public String getParam(String key) {
+		return rawRequest.getParameter(key);
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public <T> T getParam(String key, T defval) {
+		String val = rawRequest.getParameter(key);
+		if (val == null || !Converter.isValid(defval.getClass(), val)){
+			return defval;
+		}
+		return (T)Converter.convert(defval.getClass(), val);
+	}
+
 	@Override
 	public String getPath() {
 		return rawRequest.getServletPath();
-	}
-	
-	@Override
-	public Query getQuery() {
-		return new Query(this.rawRequest);
 	}
 
 	@Override
@@ -46,4 +59,40 @@ public abstract class AbstractRequest implements Request {
 	public String getQueryString() {
 		return rawRequest.getQueryString();
 	}
+
+	@Override
+	public String getCharacterEncoding() {
+		return rawRequest.getCharacterEncoding();
+	}
+
+	@Override
+	public int getContentLength() {
+		return rawRequest.getContentLength();
+	}
+
+	@Override
+	public String getContentType() {
+		return rawRequest.getContentType();
+	}
+
+	@Override
+	public String getContextPath() {
+		return rawRequest.getContextPath();
+	}
+
+	@Override
+	public String getProtocol() {
+		return rawRequest.getProtocol();
+	}
+
+	@Override
+	public String getRequestURI() {
+		return rawRequest.getRequestURI();
+	}
+
+	@Override
+	public StringBuffer getRequestURL() {
+		return rawRequest.getRequestURL();
+	}
+	
 }

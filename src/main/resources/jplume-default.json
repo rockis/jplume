@@ -20,9 +20,5 @@ INTERCEPTORS = [
     'jplume.Interceptors.CommonInterceptor'
 ]
 
-ERROR_HANDLERS = {
-	403 : 'jplume.view.ErrorHandler.handle403',
-	404 : 'jplume.view.ErrorHandler.handle404',
-	500 : 'jplume.view.ErrorHandler.handle500'
-}
+ERROR_HANDLER = "jplume.view.StandardErrorHandler"
 

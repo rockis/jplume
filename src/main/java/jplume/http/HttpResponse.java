@@ -69,9 +69,13 @@ public class HttpResponse extends AbstractResponse {
 		return new HttpResponse(HttpServletResponse.SC_FORBIDDEN);
 	}
 	
-	public static HttpResponse internalError(String content) {
-		HttpResponse resp =  create(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, content);
-		resp.setContentLength(content.length());
+	public static HttpResponse internalError(Throwable e) {
+		HttpResponse resp =  create(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.toString());
+		return resp;
+	}
+	
+	public static HttpResponse internalError(String message, Throwable e) {
+		HttpResponse resp =  create(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.toString());
 		return resp;
 	}
 	

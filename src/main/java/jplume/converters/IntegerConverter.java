@@ -17,7 +17,6 @@ public class IntegerConverter implements TypeConverter<Integer> {
 			Integer.parseInt(value);
 			return true;
 		} catch (NumberFormatException e) {
-			e.printStackTrace();
 			return false;
 		}
 	}

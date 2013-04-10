@@ -1,55 +1,52 @@
 package jplume.Interceptors;
 
-import java.lang.reflect.Method;
-import java.util.HashMap;
-import java.util.Map;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import jplume.conf.Settings;
 import jplume.http.Request;
 import jplume.http.Response;
-import jplume.view.ViewMethod;
+import jplume.view.ErrorHandler;
 
 public class CommonInterceptor extends InterceptorAdapter {
 
-	private Map<Integer, ViewMethod> errorMethods = new HashMap<Integer, ViewMethod>();
+	private ErrorHandler errorHandler = null;
 	
 	private Logger logger = LoggerFactory.getLogger(CommonInterceptor.class);
 	
 	public CommonInterceptor() {
 		
-		Map<Integer, String> errorHandlers = Settings.getMap("ERROR_HANDLERS");
-		for (Map.Entry<Integer, String> entry : errorHandlers.entrySet()) {
-			ViewMethod m = getErrorView(entry.getValue());
-			if (m != null) {
-				errorMethods.put(entry.getKey(), m);
-			}
-		}
+		String errorHandlerClass = Settings.get("ERROR_HANDLER");
+		try {
+			errorHandler = (ErrorHandler) Class.forName(errorHandlerClass).newInstance();
+		} catch (Exception e) {
+			logger.error("Cannot create errorhandler ", e);
+		} 
 	}
 	
 	@Override
 	public Response processResponse(Request request, Response response) {
 		
-		int code = response.getCode();
-		if (errorMethods.containsKey(code)) {
-			return errorMethods.get(code).handle(request);
+		if (errorHandler != null) {
+			int code = response.getCode();
+			switch(code) {
+			case 403:
+				return errorHandler.handle403(request);
+			case 404:
+				return errorHandler.handle404(request);
+			case 500:
+				return errorHandler.handle500(request, null);
+			}
+		}
+		return null;
+	}
+	
+	@Override
+	public Response processException(Request request, Throwable e) {
+		if (errorHandler != null) {
+			return errorHandler.handle500(request, e);
 		}
 		return null;
 	}
 
-	public ViewMethod getErrorView(String viewName) {
-		int lastIndexOfDot = viewName.lastIndexOf(".");
-		String className = viewName.substring(0, lastIndexOfDot);
-		String methodName = viewName.substring(lastIndexOfDot + 1);
-		try {
-			Class<?> clz = Class.forName(className);
-			Method method = clz.getMethod(methodName, new Class[]{ Request.class });
-			return ViewMethod.create(method);
-		} catch (Exception e) {
-			logger.warn("The error handler " + viewName + " not found or invalid", e);
-			return null;
-		} 
-	}
 }

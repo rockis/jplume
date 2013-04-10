@@ -64,6 +64,10 @@ public class Settings {
 		return get(key, null);
 	}
 	
+	public static boolean isTrue(String key) {
+		return true ==  (Boolean)jsEngine.get(key);
+	}
+	
 	@SuppressWarnings("unchecked")
 	public static <T1, T2> Map<T1, T2> getMap(String key) {
 		return (Map<T1, T2>)jsEngine.get(key);

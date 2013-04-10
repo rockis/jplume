@@ -46,8 +46,7 @@ public class FreemarkerEngine extends TemplateEngine {
 			Template t = config.getTemplate(template);
 			return new TemplateResponse(t, null);
 		} catch (IOException e) {
-			e.printStackTrace();
-			return HttpResponse.notFound();
+			return HttpResponse.internalError("Template " + template + " not found", e);
 		}
 	}
 
@@ -57,7 +56,7 @@ public class FreemarkerEngine extends TemplateEngine {
 			Template t = config.getTemplate(template, "utf-8");
 			return new TemplateResponse(t, data);
 		} catch (IOException e) {
-			return HttpResponse.notFound();
+			return HttpResponse.internalError("Template " + template + " not found", e);
 		}
 	}
 
@@ -93,6 +92,7 @@ public class FreemarkerEngine extends TemplateEngine {
 		Configuration c = new Configuration();
 		c.setLocalizedLookup(false);
 		c.setTemplateLoader(getTemplateLoader(servletContext));
+		
 		c.setTemplateExceptionHandler(TemplateExceptionHandler.HTML_DEBUG_HANDLER);
 		//loadSettings(servletContext, c);
 		return c;

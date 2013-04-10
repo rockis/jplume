@@ -45,4 +45,5 @@ public abstract class AbstractResponse implements Response{
 		}
 		return false;
 	}
+	
 }
