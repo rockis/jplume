@@ -1,35 +1,42 @@
 package jplume.template;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import jplume.conf.Settings;
 import jplume.http.Response;
+import jplume.template.freemarker.FreemarkerEngine;
 
 public abstract class TemplateEngine {
 
 
-	private static TemplateEngine engine = null;
+	public static final String FREEMARKER = "freemarker";
+	
+	private static String defaultEngine = null;
+	
+	private static Map<String, TemplateEngine> engines = new HashMap<String, TemplateEngine>();
+	
 	private static Object lock = new Object();
+	
+	static {
+		engines.put(FREEMARKER, new FreemarkerEngine().initialize());
+	}
 	
 	public static TemplateEngine get() {
 		synchronized (lock) {
-			if (engine == null) {
-				try {
-					@SuppressWarnings("unchecked")
-					Class<TemplateEngine> engineClass = (Class<TemplateEngine>)Class.forName(Settings.templateEngineClass());
-					engine = engineClass.newInstance();
-					engine.initialize();
-				} catch (ClassNotFoundException e) {
-					throw new TemplateException("Template engine not found", e);
-				} catch (IllegalAccessException e) {
-					throw new TemplateException("Could not create template engine", e);
-				} catch (InstantiationException e) {
-					throw new TemplateException("Could not create template engine", e);
-				}
+			if (defaultEngine == null) {
+				Map<String, Object> m = Settings.getMap("TEMPLATE_ENGINE");
+				defaultEngine = (String)m.get("default");
 			}
 		}
-		return engine;
+		return get(defaultEngine);
 	}
 	
-	public abstract void initialize();
+	public static TemplateEngine get(String engineName) {
+		return engines.get(engineName);
+	}
+	
+	public abstract TemplateEngine initialize();
 	
 	public abstract Response render(String template);
 	

@@ -32,12 +32,13 @@ public class FreemarkerEngine extends TemplateEngine {
 	}
 
 	@Override
-	public void initialize() {
+	public TemplateEngine initialize() {
 		try {
 			config = createConfiguration(ActionContext.getContext());
 		} catch (TemplateException e) {
 			logger.error(e.getMessage());
 		}
+		return this;
 	}
 
 	@Override

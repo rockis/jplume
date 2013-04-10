@@ -14,7 +14,7 @@ import javax.script.ScriptException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import jplume.Interceptors.Interceptor;
+import jplume.interceptors.Interceptor;
 import jplume.conf.Settings;
 import jplume.http.HttpResponse;
 import jplume.http.Request;

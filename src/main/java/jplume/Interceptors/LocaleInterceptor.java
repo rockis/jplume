@@ -1,4 +1,4 @@
-package jplume.Interceptors;
+package jplume.interceptors;
 
 import jplume.http.Request;
 import jplume.http.Response;
