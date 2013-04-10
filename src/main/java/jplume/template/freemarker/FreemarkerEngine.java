@@ -14,6 +14,7 @@ import jplume.core.ActionContext;
 import jplume.http.HttpResponse;
 import jplume.http.Response;
 import jplume.template.TemplateEngine;
+import freemarker.cache.FileTemplateLoader;
 import freemarker.cache.TemplateLoader;
 import freemarker.cache.WebappTemplateLoader;
 import freemarker.template.Configuration;
@@ -73,8 +74,16 @@ public class FreemarkerEngine extends TemplateEngine {
 	}
 
 	protected TemplateLoader getTemplateLoader(ServletContext servletContext) {
-		PrefixTemplateLoader loader = new PrefixTemplateLoader(
-				new WebappTemplateLoader(servletContext));
+		TemplateLoader defaultLoader = null;
+		if (servletContext == null) {
+			try {
+				defaultLoader = new FileTemplateLoader(new File("/tmp"));
+			} catch (IOException e) {
+			}
+		}else{
+			defaultLoader = new WebappTemplateLoader(servletContext);
+		}
+		PrefixTemplateLoader loader = new PrefixTemplateLoader(defaultLoader);
 		loader.addLoader("cl", new MultiClassTemplateLoader("templates"));
 		return loader;
 	}

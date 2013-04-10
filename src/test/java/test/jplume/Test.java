@@ -1,8 +1,8 @@
 package test.jplume;
 
-import java.util.Map;
-
 import jplume.conf.Settings;
+import jplume.template.TemplateEngine;
+import jplume.view.ErrorHandler;
 
 public class Test {
 
@@ -10,9 +10,10 @@ public class Test {
 	 * @param args
 	 */
 	public static void main(String[] args) throws Exception{
-		Settings.initalize("jplume-default.json");
-		Map<Integer, String> o = Settings.getMap("ERROR_HANDLERS");
 		
-		System.out.println(o.get(404));
+		Settings.initalize("jplume-default.json");
+		TemplateEngine et = TemplateEngine.get();
+		et.render(ErrorHandler.class, "404.html");
+		
 	}
 }

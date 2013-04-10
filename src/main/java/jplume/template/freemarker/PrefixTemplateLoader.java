@@ -30,19 +30,20 @@ public class PrefixTemplateLoader implements TemplateLoader {
 	@Override
 	public Object findTemplateSource(String name) throws IOException {
 		int indexOfColon = name.indexOf(':');
-		Object templateSource = null;
+		
+		TemplateLoader loader = defaultLoader;
 		if (indexOfColon > 0 ){
 			String prefix = name.substring(0, indexOfColon);
 			name = name.substring(indexOfColon + 1);
-			TemplateLoader loader = loaders.get(prefix);
+			loader = loaders.get(prefix);
 			if (loader == null) {
 				throw new IOException("Prefix '" + prefix + "' doesn't exists");
 			}
-			templateSource = loader.findTemplateSource(name);
+			
 		}
-		templateSource = defaultLoader.findTemplateSource(name);
+		Object templateSource = loader.findTemplateSource(name);
 		if (templateSource != null) {
-			return new PrefixSource(defaultLoader.findTemplateSource(name), defaultLoader);
+			return new PrefixSource(templateSource, loader);
 		}
 		return null;
 	}
