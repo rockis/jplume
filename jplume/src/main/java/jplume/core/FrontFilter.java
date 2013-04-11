@@ -5,7 +5,6 @@ import java.io.IOException;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
-import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
@@ -22,16 +21,25 @@ public class FrontFilter implements Filter{
 
 	private RequestDispatcher dispatcher;
 	
-	private ServletContext servletContext;
-	
 	public FrontFilter(){
+		
+	}
+
+	public void init(FilterConfig config) throws ServletException {
+		ActionContext.setContext(config.getServletContext());
+		String userConfigFile = config.getInitParameter(Settings.JPLUME_USER_CONFIG_FILE);
+		try {
+			Settings.initalize(userConfigFile);
+		} catch (InvalidConfigException e) {
+			throw new ServletException(e);
+		}
+		
+		this.dispatcher = new RequestDispatcher(Settings.get("ROOT_URLCONF"));
 		
 	}
 	
 	public void doFilter(ServletRequest _req, ServletResponse _resp,
 			FilterChain chain) throws IOException, ServletException {
-		
-		ActionContext.setContext(servletContext);
 
 		Response resp = dispatcher.dispatch(new HttpRequest((HttpServletRequest)_req));
 		resp.apply((HttpServletResponse)_resp);
@@ -40,17 +48,4 @@ public class FrontFilter implements Filter{
 	public void destroy() {
 		
 	}
-
-	public void init(FilterConfig config) throws ServletException {
-		String userConfigFile = config.getInitParameter(Settings.JPLUME_USER_CONFIG_FILE);
-		try {
-			Settings.initalize(userConfigFile);
-		} catch (InvalidConfigException e) {
-			throw new ServletException(e);
-		}
-		this.servletContext = config.getServletContext();
-		this.dispatcher = new RequestDispatcher(Settings.get("ROOT_URLCONF"));
-		
-	}
-	
 }

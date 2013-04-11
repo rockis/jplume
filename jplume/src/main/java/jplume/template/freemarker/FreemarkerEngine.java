@@ -3,6 +3,9 @@ package jplume.template.freemarker;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Method;
+import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 import javax.servlet.ServletContext;
@@ -10,10 +13,12 @@ import javax.servlet.ServletContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import jplume.conf.Settings;
 import jplume.core.ActionContext;
 import jplume.http.HttpResponse;
 import jplume.http.Response;
 import jplume.template.TemplateEngine;
+import jplume.template.annotations.TemplateFunction;
 import freemarker.cache.FileTemplateLoader;
 import freemarker.cache.TemplateLoader;
 import freemarker.cache.WebappTemplateLoader;
@@ -95,8 +100,42 @@ public class FreemarkerEngine extends TemplateEngine {
 		c.setTemplateLoader(getTemplateLoader(servletContext));
 		
 		c.setTemplateExceptionHandler(TemplateExceptionHandler.HTML_DEBUG_HANDLER);
-		//loadSettings(servletContext, c);
+		
+		Map<String, Object> engineConfig = Settings.getMap("TEMPLATE_ENGINE");
+		createBuiltinFunctions(engineConfig, c);
 		return c;
+	}
+	
+	protected void createBuiltinFunctions(Map<String, Object> engineConfig, Configuration config) {
+		
+		@SuppressWarnings("unchecked")
+		List<String> funcs = (List<String>)engineConfig.get("functions");
+		for(String className : funcs) {
+			createBuiltinFunctions(config, className);
+		}
+	}
+	
+	protected void createBuiltinFunctions(Configuration config, String className) {
+		try {
+			Class<?> funcClass = Class.forName(className);
+			Object obj = funcClass.newInstance();
+			for(Method m : funcClass.getMethods()) {
+				TemplateFunction anno = m.getAnnotation(TemplateFunction.class);
+				if (anno == null) continue;
+				String name = m.getName();
+				if (!anno.name().isEmpty()) {
+					name = anno.name();
+				}
+				config.setSharedVariable(name, new FunctionWrapper(obj, m));
+			}
+			
+		} catch (InstantiationException | IllegalAccessException
+				| ClassNotFoundException e) {
+			logger.error(
+					"Error while create builtin function",
+					e);
+		}
+		
 	}
 
 	protected void loadSettings(ServletContext servletContext,

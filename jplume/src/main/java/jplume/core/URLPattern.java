@@ -11,7 +11,7 @@ import jplume.http.Response;
 import jplume.view.ViewMethod;
 import jplume.view.annotations.View;
 
-public class URLPattern implements DispatcherProvider {
+public class URLPattern extends DispatcherProvider {
 
 	private Pattern pattern;
 
@@ -82,16 +82,17 @@ public class URLPattern implements DispatcherProvider {
 	}
 
 	public Response dispatch(Request request) throws URLDispatchException {
+		List<String> pathVars = new ArrayList<String>();
+		Matcher matcher = this.pattern.matcher(request.getPath());
+		if (!matcher.matches()) {
+			return null;
+		}
+		for (int i = 1; i <= matcher.groupCount(); i++) {
+			pathVars.add(matcher.group(i));
+		}
+		String[] vars = pathVars.toArray(new String[0]);
+		
 		synchronized (this) {
-			List<String> pathVars = new ArrayList<String>();
-			Matcher matcher = this.pattern.matcher(request.getPath());
-			if (!matcher.matches()) {
-				return null;
-			}
-			for (int i = 1; i <= matcher.groupCount(); i++) {
-				pathVars.add(matcher.group(i));
-			}
-			String[] vars = pathVars.toArray(new String[0]);
 			if (this.viewMethod == null) {
 				for(ViewMethod m : this.possibleMethods){
 					if (m.match(vars)){
@@ -102,11 +103,12 @@ public class URLPattern implements DispatcherProvider {
 				if (this.viewMethod == null){
 					return null;
 				}
-			} else if(!this.viewMethod.match(vars)) {
-				return null;
 			}
-			return this.viewMethod.handle(request, vars);
 		}
+		if(!this.viewMethod.match(vars)) {
+			return null;
+		}
+		return this.viewMethod.handle(request, vars);
 	}
 
 	public String toString() {

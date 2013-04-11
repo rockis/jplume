@@ -3,7 +3,7 @@
 <head>
   <meta http-equiv="content-type" content="text/html; charset=utf-8">
   <meta name="robots" content="NONE,NOARCHIVE">
-  <title>${exception.class.name} at ${req.path}</title>
+  <title>500 - Internal server error </title>
   <style type="text/css">
     html * { padding:0; margin:0; }
     body * { padding:10px 20px; }
@@ -59,8 +59,8 @@
 </head>
 <body>
 <div id="summary">
-  <h1>${exception.class.name} at ${req.path}</h1>
-  <pre class="exception_value">${exception.message}</pre>
+  <h1>${exception.class.name} at ${req.path}<span>(500)</span></h1>
+  <pre class="exception_value">${exception.message?default('')}</pre>
   <table class="meta">
 
     <tr>
@@ -80,7 +80,7 @@
 
     <tr>
       <th>Exception Value:</th>
-      <td><pre>${exception.message}</pre></td>
+      <td><pre>${exception.message?default('')}</pre></td>
     </tr>
 
 
@@ -91,13 +91,10 @@
 
     <tr>
       <th>Server time:</th>
-      <td>星期三, 10 四月 2013 17:35:41 +0800</td>
+      <td>${date()?string('yyyy-MM-dd HH:mm:ss')}</td>
     </tr>
   </table>
 </div>
-
-
-
 
 <div id="traceback">
   <h2>Traceback</h2>

@@ -17,7 +17,9 @@ public class StandardErrorHandler implements ErrorHandler {
 	}
 	
 	public Response handle403(Request request) {
-		return tplEngine.render(getClass(), "403.html");
+		Map<String, Object> data = new HashMap<String, Object>();
+		data.put("req", request);
+		return tplEngine.render(getClass(), "403.html", data);
 	}
 	
 	public Response handle404(Request request) {

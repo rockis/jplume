@@ -3,7 +3,7 @@ package jplume.core;
 import jplume.http.Request;
 import jplume.http.Response;
 
-public class URLPatternGroup implements DispatcherProvider{
+public class URLPatternGroup extends DispatcherProvider{
 	
 	private DispatcherProvider[] urlpatterns = new DispatcherProvider[0];
 	

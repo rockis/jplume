@@ -5,6 +5,8 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletResponse;
 
+import jplume.conf.Settings;
+
 public abstract class AbstractResponse implements Response{
 
 	protected final int status;
@@ -23,6 +25,7 @@ public abstract class AbstractResponse implements Response{
 
 	public void apply(HttpServletResponse resp) {
 		resp.setStatus(this.status);
+		resp.setCharacterEncoding(Settings.defauleEncoding());
 		for (String[] header : this.headers) {
 			resp.addHeader(header[0], header[1]);
 		}

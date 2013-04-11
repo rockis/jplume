@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import jplume.conf.Settings;
+import jplume.http.HttpExceptResponse;
 import jplume.http.Request;
 import jplume.http.Response;
 import jplume.view.ErrorHandler;
@@ -35,7 +36,9 @@ public class CommonInterceptor extends InterceptorAdapter {
 			case 404:
 				return errorHandler.handle404(request);
 			case 500:
-				return errorHandler.handle500(request, null);
+				if (response instanceof HttpExceptResponse) {
+					return errorHandler.handle500(request, ((HttpExceptResponse)response).getException());
+				}
 			}
 		}
 		return null;

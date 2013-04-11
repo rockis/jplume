@@ -4,14 +4,14 @@ import javax.servlet.ServletContext;
 
 public class ActionContext {
 
-	private static ThreadLocal<ServletContext> context = new ThreadLocal<ServletContext>();
+	private static ServletContext context = null;
 	
 	public static void setContext(ServletContext cntx) {
-		context.set(cntx);
+		context = cntx;
 	}
 
 	public static ServletContext getContext() {
-		return context.get();
+		return context;
 	}
 	
 	public static String getContextPath() {

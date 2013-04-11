@@ -27,8 +27,15 @@ public class ExampleAction {
 		return id + "";
 	}
 	
-	public String query(@PathVar int id, @QueryVar(name = "q", defval = "1") int q, Request request) {
-		throw new RuntimeException("test");
+	public Response query(@PathVar int id, @QueryVar(name = "q", defval = "1") int q, Request request) {
+		if (q == 403) {
+			return HttpResponse.forbidden();
+		}else if (q == 404) {
+			return HttpResponse.notFound();
+		}else if (q == 500) {
+			throw new RuntimeException("test");
+		}
+		return HttpResponse.ok("ok");
 	}
 	
 	@View(pattern = "^/dynamic/([\\d]+)$")

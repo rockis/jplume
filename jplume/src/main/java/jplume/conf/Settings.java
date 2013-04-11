@@ -64,6 +64,10 @@ public class Settings {
 		return get(key, null);
 	}
 	
+	public static boolean isDebug() {
+		return true ==  (Boolean)jsEngine.get("DEBUG");
+	}
+	
 	public static boolean isTrue(String key) {
 		return true ==  (Boolean)jsEngine.get(key);
 	}
@@ -78,8 +82,8 @@ public class Settings {
 		return (List<T>)jsEngine.get(key);
 	}
 
-	public static String defaultCharset() {
-		return get("DEFAULT_CHARSET", "utf-8");
+	public static String defauleEncoding() {
+		return get("DEFAULT_ENCODING", "utf-8");
 	}
 	
 	public static String defaultContentType() {

@@ -16,7 +16,7 @@ public class HttpResponse extends AbstractResponse {
 	
 	public HttpResponse(int status, String mimeType, InputStream content, String contentType) {
 		super(status);
-		this.charset = Settings.defaultCharset();
+		this.charset = Settings.defauleEncoding();
 		if (mimeType != null) {
 			contentType = mimeType;
 		}
@@ -44,39 +44,33 @@ public class HttpResponse extends AbstractResponse {
 		super(status);
 	}
 	
-	public static HttpResponse create(int status, String content) {
-		HttpResponse resp = new HttpResponse(status, new ByteArrayInputStream(content.getBytes()));
-		resp.setContentLength(content.length());
-		return resp;
+	public static Response create(int status, String content) {
+		return new HttpResponse(status, new ByteArrayInputStream(content.getBytes()));
 	}
 	
-	public static HttpResponse ok(String content) {
-		HttpResponse resp = create(HttpServletResponse.SC_OK, content);
-		resp.setContentLength(content.length());
-		return resp;
+	public static Response ok(String content) {
+		return create(HttpServletResponse.SC_OK, content);
 	}
 	
-	public static HttpResponse notModified(String mimeType) {
+	public static Response notModified(String mimeType) {
 		HttpResponse resp =  new HttpResponse(HttpServletResponse.SC_NOT_MODIFIED, mimeType, null);
 		return resp;
 	}
 	
-	public static HttpResponse notFound() {
+	public static Response notFound() {
 		return new HttpResponse(HttpServletResponse.SC_NOT_FOUND);
 	}
 	
-	public static HttpResponse forbidden() {
+	public static Response forbidden() {
 		return new HttpResponse(HttpServletResponse.SC_FORBIDDEN);
 	}
 	
-	public static HttpResponse internalError(Throwable e) {
-		HttpResponse resp =  create(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.toString());
-		return resp;
+	public static Response internalError(Throwable e) {
+		return new HttpExceptResponse(e);
 	}
 	
-	public static HttpResponse internalError(String message, Throwable e) {
-		HttpResponse resp =  create(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.toString());
-		return resp;
+	public static Response internalError(String message, Throwable e) {
+		return new HttpExceptResponse(message, e);
 	}
 	
 	@Override

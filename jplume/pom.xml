@@ -65,6 +65,12 @@
 					<stopKey>foo</stopKey>
 					<stopPort>9000</stopPort>
 					<contextPath>/h</contextPath>
+					<systemProperties>
+						<systemProperty>
+							<name>org.eclipse.jetty.util.URI.charset</name>
+							<value>UTF-8</value>
+						</systemProperty>
+					</systemProperties>
 				</configuration>
 				<executions>
 					<execution>
