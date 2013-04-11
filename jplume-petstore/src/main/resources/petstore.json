@@ -1,0 +1,37 @@
+/**
+ * Default JPlume settings. Override these with settings in your project
+ */
+
+DEBUG = true
+
+ROOT_URLCONF = "jplume/example/example";
+
+MEDIA_ROOT = "/media/ads-m/workspace/4.5.88.4/04_Code/web/www"
+	
+USE_ETAGS = true
+	
+DEFAULT_CONTENT_TYPE = 'text/html'
+DEFAULT_ENCODING = 'utf-8'
+	
+LOCALE = "zh_CN"
+	
+INTERCEPTORS = [
+    'jplume.interceptors.CommonInterceptor'
+]
+
+ERROR_HANDLER = "jplume.view.StandardErrorHandler"
+
+TEMPLATE_ENGINE = {
+    'default' : 'freemarker',
+    'freemarker' : {
+       'default_encoding' : DEFAULT_ENCODING,
+       'number_format' : '#',
+       'date_format' : 'yyyy-MM-dd',
+       'time_format' : 'HH:mm:ss',
+       'datetime_format' : 'yyyy-MM-dd HH:mm:ss',
+       'locale' : LOCALE
+    },
+    'functions' : [
+        'jplume.template.Functions'
+    ]
+}
