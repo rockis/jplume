@@ -53,8 +53,8 @@ public class RequestDispatcher {
 		try {
 			resp = resolver.visit(request.getPath(), new URLVisitor<Response>() {
 				@Override
-				public Response visit(Pattern pattern, String[] pathVars, ViewMethod viewMethod) {
-					if (viewMethod == null) {
+				public Response visit(Pattern pattern, String[] pathVars, ViewMethod viewMethod, boolean matched) {
+					if (!matched) {
 						return null;
 					}
 					return viewMethod.handle(request, pathVars);

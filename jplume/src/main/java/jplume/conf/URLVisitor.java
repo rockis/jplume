@@ -6,5 +6,5 @@ import jplume.view.ViewMethod;
 
 public interface URLVisitor<T>  {
 
-	public T visit(Pattern pattern, String[] pathVars, ViewMethod method);
+	public T visit(Pattern pattern, String[] pathVars, ViewMethod method, boolean matched);
 }

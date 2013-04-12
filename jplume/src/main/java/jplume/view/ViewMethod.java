@@ -4,7 +4,9 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.regex.Pattern;
 
@@ -29,7 +31,7 @@ public class ViewMethod {
 	/**
 	 * key: index of pathvar
 	 */
-	private final TreeMap<Integer, Argument> arguments;
+	private final SortedMap<Integer, Argument> arguments;
 	
 	private final String[] requireMethods;
 
@@ -97,6 +99,16 @@ public class ViewMethod {
 		return requireMethods;
 	}
 
+	public PathArgument[] getPathArguments() {
+		TreeMap<Integer, PathArgument> args = new TreeMap<>();
+		for (Argument argument : arguments.values()) {
+			if (argument instanceof PathArgument) {
+				args.put(((PathArgument)argument).pathIndex, ((PathArgument)argument));
+			}
+		}
+		return args.values().toArray(new PathArgument[0]);
+	}
+
 	public boolean match(String[] pathVars) {
 		for (Argument argument : arguments.values()) {
 			if (argument instanceof PathArgument) {
@@ -144,17 +156,22 @@ public class ViewMethod {
 		}
 	}
 
-	private static abstract class Argument {
+	public static abstract class Argument {
 		
 		protected Class<?> type;
 		public Argument(Class<?> type) {
 			this.type = type;
 		}
-		abstract Object get(Request request, String... pathVars);
+		
+		public Class<?> getType() {
+			return type;
+		}
+		
+		abstract public Object get(Request request, String... pathVars);
 		
 	}
 	
-	private static class PathArgument extends Argument{
+	public static class PathArgument extends Argument{
 		private int pathIndex;
 
 		public PathArgument(Class<?> type, int pathIndex) {
@@ -163,12 +180,12 @@ public class ViewMethod {
 		}
 
 		@Override
-		Object get(Request request, String... pathVars) {
+		public Object get(Request request, String... pathVars) {
 			return Converter.convert(this.type, pathVars[pathIndex]);
 		}
 	}
 	
-	private static class QueryArgument extends Argument {
+	public static class QueryArgument extends Argument {
 		private String name;
 		private String defval;
 
@@ -179,7 +196,7 @@ public class ViewMethod {
 		}
 
 		@Override
-		Object get(Request request, String... pathVars) {
+		public Object get(Request request, String... pathVars) {
 			String val = request.getParam(name);
 			if (val == null || !Converter.isValid(this.type, val)) {
 				return Converter.convert(this.type, defval);

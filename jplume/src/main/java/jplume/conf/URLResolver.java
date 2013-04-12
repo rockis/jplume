@@ -72,10 +72,16 @@ public class URLResolver extends URLResolveProvider {
 				this.possibleMethods.add(ViewMethod.create(this.pattern, method));
 			}
 		}
-		if (possibleMethods.size() == 0) {
+		if (possibleMethods.size() == 1) {
+			this.viewMethod = possibleMethods.get(0);
+		}else if (possibleMethods.size() == 0) {
 			throw new URLResolveException("Invalid Pattern:"
 					+ this.pattern + " No Such Method '"
 					+ actionClass.getName() + "." + this.viewMethodName + "'");
+		}else{
+			for (ViewMethod m : possibleMethods) {
+				System.out.println(m.getMethod().getName());
+			}
 		}
 	}
 
@@ -85,7 +91,7 @@ public class URLResolver extends URLResolveProvider {
 		Matcher matcher = pattern.matcher(path);
 //		System.out.println(String.format("%s %s", pattern.toString(), path));
 		if (!matcher.matches()) {
-			return visitor.visit(pattern, new String[0], null);
+			return visitor.visit(pattern, new String[0], viewMethod, false);
 		}
 		for (int i = 1; i <= matcher.groupCount(); i++) {
 			pathVars.add(matcher.group(i));
@@ -101,15 +107,15 @@ public class URLResolver extends URLResolveProvider {
 					}
 				}
 				if (viewMethod == null){
-					return visitor.visit(pattern, vars, null);
+					return visitor.visit(pattern, vars, viewMethod, false);
 				}
 			}
 		}
 		if(!viewMethod.match(vars)) {
-			return visitor.visit(pattern, vars, null);
+			return visitor.visit(pattern, vars, viewMethod, false);
 		}
 		
-		return	visitor.visit(pattern, vars, viewMethod);
+		return	visitor.visit(pattern, vars, viewMethod, true);
 	}
 
 	public String toString() {

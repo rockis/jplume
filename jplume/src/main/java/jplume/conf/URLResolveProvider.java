@@ -57,7 +57,6 @@ public abstract class URLResolveProvider {
 			return (URLResolveProvider) jsEngine.get("urlpatterns");
 
 		} catch (ScriptException e) {
-			e.printStackTrace();
 			throw new URLResolveException("Urlconf '"
 					+ urlconf.toString() + "' has an error", e);
 		} catch (IOException e) {

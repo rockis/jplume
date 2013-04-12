@@ -18,10 +18,9 @@ public class Test {
 	 */
 	public static void main(String[] args) throws Exception {
 
-		System.out.println(new Date().toGMTString());
-		DateFormat df = new SimpleDateFormat("dd MMM yyyy HH:mm:ss zz", Locale.US);
-		df.setTimeZone(TimeZone.getTimeZone("GMT"));
-		Date date = new Date();
-		System.out.println(df.format(date));
+		String pp = "^/include/param/(\\d+)/([\\w]+)/(\\d+)$";
+		String[] vars = new String[]{"19", "name", "20"};
+		Pattern pt = Pattern.compile(pp);
+		pt.matcher("19");
 	}
 }
