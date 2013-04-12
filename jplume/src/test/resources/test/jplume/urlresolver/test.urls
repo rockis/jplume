@@ -1,0 +1,7 @@
+
+urlpatterns = patterns("test.jplume.urlresolver.TestAction", 
+	_("^$", "index"),
+	_("^/help$", "help"),
+	_("^/helloworld$", "test.jplume.urlresolver.TestAction2.helloworld"),
+	_("^/include", include("test/jplume/urlresolver/include.urls"))
+)

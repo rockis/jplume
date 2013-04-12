@@ -2,9 +2,15 @@ package jplume.view;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
+import jplume.conf.Settings;
+import jplume.conf.URLResolveProvider;
+import jplume.conf.URLVisitor;
 import jplume.http.Request;
 import jplume.http.Response;
 import jplume.template.TemplateEngine;
@@ -21,7 +27,17 @@ public class StandardErrorHandler implements ErrorHandler {
 	}
 	
 	public Response handle404(Request request) {
-		return tplEngine.render(getClass(), "404.html");
+		final List<String> patterns = new ArrayList<>();
+		URLResolveProvider provider = URLResolveProvider.create(Settings.get("ROOT_URLCONF"));
+		provider.visit(request.getPath(), new URLVisitor<String>() {
+			public String visit(Pattern pattern, String[] pathVars, ViewMethod method) {
+				patterns.add(pattern.toString());
+				return null;
+			}
+		});
+		Map<String, Object> data = new HashMap<>();
+		data.put("patterns", patterns);
+		return tplEngine.render(getClass(), "404.html", data);
 	}
 	
 	public Response handle500(Request request, Throwable e) {

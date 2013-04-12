@@ -6,12 +6,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.TreeMap;
+import java.util.regex.Pattern;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import jplume.converters.Converter;
-import jplume.core.URLPatternException;
 import jplume.http.HttpResponse;
 import jplume.http.Request;
 import jplume.http.Response;
@@ -23,6 +23,7 @@ public class ViewMethod {
 
 	private Logger logger = LoggerFactory.getLogger(ViewMethod.class);
 
+	private final Pattern pattern;
 	private final Method method;
 	
 	/**
@@ -32,14 +33,15 @@ public class ViewMethod {
 	
 	private final String[] requireMethods;
 
-	private ViewMethod(Method method, TreeMap<Integer, Argument> arguments, 
+	private ViewMethod(Pattern pattern, Method method, TreeMap<Integer, Argument> arguments, 
 			            String[] requireMethods) {
-		this.method = method;
+		this.pattern   = pattern;
+		this.method    = method;
 		this.arguments = arguments;
 		this.requireMethods = requireMethods;
 	}
 
-	public static ViewMethod create(Method method) throws URLPatternException {
+	public static ViewMethod create(Pattern pattern, Method method) throws ViewException {
 		Class<?>[] argumentTypes = method.getParameterTypes();
 
 		TreeMap<Integer, Argument> arguments = new TreeMap<Integer, Argument>();
@@ -48,7 +50,7 @@ public class ViewMethod {
 		int pathIndex = 0;
 		for (Annotation[] annotations : method.getParameterAnnotations()) {
 			if (annotations.length > 1) {
-				throw new URLPatternException("View method's argument has one annotation as most");
+				throw new ViewException("View method's argument has one annotation as most");
 			}else if(annotations.length == 1) {
 				Annotation annotation = annotations[0];
 				if (annotation instanceof PathVar) {
@@ -60,17 +62,17 @@ public class ViewMethod {
 					arguments.put(argIndex, new PathArgument(
 							argumentTypes[argIndex], pi));
 					pathIndex++;
-					
+
 				}else if (annotation instanceof QueryVar) {
 					QueryVar anno = (QueryVar) annotation;
 					String name = anno.name();
 					String defval = anno.defval();
 					arguments.put(argIndex, new QueryArgument(argumentTypes[argIndex], name, defval));
 				}else {
-					throw new URLPatternException("Annotation of view method's argument must be PathVar or QueryVar");
+					throw new ViewException("Annotation of view method's argument must be PathVar or QueryVar");
 				}
 			}else{
-				throw new URLPatternException("Invalid Argument:" + argIndex + " of method " + method.getDeclaringClass() + ":" + method.getName());
+				throw new ViewException("Invalid Argument:" + argIndex + " of method " + method.getDeclaringClass() + ":" + method.getName());
 			}
 			argIndex++;
 		}
@@ -80,7 +82,19 @@ public class ViewMethod {
 		if (anno != null) {
 			requireMethods = anno.methods();
 		}
-		return new ViewMethod(method, arguments, requireMethods);
+		return new ViewMethod(pattern, method, arguments, requireMethods);
+	}
+	
+	public Pattern getPattern() {
+		return pattern;
+	}
+
+	public Method getMethod() {
+		return method;
+	}
+
+	public String[] getRequireMethods() {
+		return requireMethods;
 	}
 
 	public boolean match(String[] pathVars) {
@@ -163,7 +177,7 @@ public class ViewMethod {
 			this.name   = name;
 			this.defval = defval;
 		}
-		
+
 		@Override
 		Object get(Request request, String... pathVars) {
 			String val = request.getParam(name);

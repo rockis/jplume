@@ -1,36 +1,32 @@
 package jplume.core;
 
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import jplume.interceptors.Interceptor;
+import jplume.conf.URLResolveProvider;
 import jplume.conf.Settings;
+import jplume.conf.URLResolveException;
+import jplume.conf.URLVisitor;
 import jplume.http.HttpResponse;
 import jplume.http.Request;
 import jplume.http.Response;
+import jplume.view.ViewMethod;
 
 public class RequestDispatcher {
 
 	private Logger logger = LoggerFactory.getLogger(RequestDispatcher.class);
 	
-	private DispatcherProvider patterns;
+	private URLResolveProvider resolver;
 
 	private List<Interceptor> interceptors;
 	
-	public RequestDispatcher(String urlconf) {
-		this(DispatcherProvider.create(urlconf));
-	}
-
-	public RequestDispatcher(URL urlconf) {
-		this(DispatcherProvider.create(urlconf));
-	}
-	
-	private RequestDispatcher(DispatcherProvider patterns) {
-		this.patterns = patterns;
+	public RequestDispatcher(URLResolveProvider resolver) {
+		this.resolver = resolver;
 		this.interceptors = new ArrayList<Interceptor>();
 		
 		List<String> interClasses = Settings.getList("INTERCEPTORS");
@@ -47,7 +43,7 @@ public class RequestDispatcher {
 		}
 	}
 
-	public Response dispatch(Request request) throws URLDispatchException{
+	public Response dispatch(final Request request) throws URLResolveException{
 		
 		Response respTmp = beforeDispatch(request);
 		if (respTmp != null) {
@@ -55,7 +51,15 @@ public class RequestDispatcher {
 		}
 		Response resp = null;
 		try {
-			resp = patterns.dispatch(request);
+			resp = resolver.visit(request.getPath(), new URLVisitor<Response>() {
+				@Override
+				public Response visit(Pattern pattern, String[] pathVars, ViewMethod viewMethod) {
+					if (viewMethod == null) {
+						return null;
+					}
+					return viewMethod.handle(request, pathVars);
+				}
+			});
 		} catch (Exception e) {
 			logger.error("Internal Error:" + request.getRequestURL().toString(), e);
 			respTmp = onException(request, e);

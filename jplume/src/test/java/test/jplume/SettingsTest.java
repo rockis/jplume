@@ -25,6 +25,7 @@ public class SettingsTest {
 		assertEquals(inters.size(), 1);
 		Map<String, Object> m = Settings.getMap("TEMPLATE_ENGINE");
 		assertEquals(m.get("default"), "freemarker");
+		@SuppressWarnings("unchecked")
 		Map<String, String> fm = (Map)m.get("freemarker");
 		assertEquals(fm.get("default_encoding"), "utf-8");
 		assertEquals(fm.get("number_format"), "#");

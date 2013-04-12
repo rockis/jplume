@@ -13,6 +13,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import jplume.conf.InvalidConfigException;
 import jplume.conf.Settings;
+import jplume.conf.URLResolveProvider;
 import jplume.http.HttpRequest;
 import jplume.http.Request;
 import jplume.http.Response;
@@ -35,8 +36,7 @@ public class FrontFilter implements Filter{
 			throw new ServletException(e);
 		}
 		
-		this.dispatcher = new RequestDispatcher(Settings.get("ROOT_URLCONF"));
-		
+		this.dispatcher = new RequestDispatcher(URLResolveProvider.create(Settings.get("ROOT_URLCONF")));
 	}
 	
 	public void doFilter(ServletRequest _req, ServletResponse _resp,

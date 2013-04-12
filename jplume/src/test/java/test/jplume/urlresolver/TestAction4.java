@@ -1,11 +1,11 @@
-package test.jplume;
+package test.jplume.urlresolver;
 
 import jplume.view.annotations.View;
 
 public class TestAction4 {
 
 	@View(pattern = "^/dynamic$")
-	public void dynamic() {
-		System.out.println("dynamic");
+	public String dynamic() {
+		return "dynamic";
 	}
 }

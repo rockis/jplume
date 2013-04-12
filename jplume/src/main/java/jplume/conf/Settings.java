@@ -41,8 +41,7 @@ public class Settings {
 			}
 			jsEngine.eval(new InputStreamReader(config.openStream()));
 		} catch (ScriptException e) {
-			e.printStackTrace();
-			logger.error("Config file has error", e);
+			logger.error("The Config file has error", e);
 			throw new InvalidConfigException("The config file '" + configFile + "' has error ", e);
 		} catch (IOException e) {
 			throw new InvalidConfigException("Could not read config file '"

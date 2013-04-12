@@ -1,7 +1,0 @@
-
-urlpatterns = patterns("test.jplume.TestAction", 
-	_("^$", "index"),
-	_("^/help$", "help"),
-	_("^/helloworld$", "test.jplume.TestAction2.helloworld"),
-	_("^/inc", include("test/jplume/include"))
-)

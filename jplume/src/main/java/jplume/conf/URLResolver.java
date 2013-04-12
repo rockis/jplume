@@ -1,4 +1,4 @@
-package jplume.core;
+package jplume.conf;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -6,12 +6,10 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import jplume.http.Request;
-import jplume.http.Response;
 import jplume.view.ViewMethod;
 import jplume.view.annotations.View;
 
-public class URLPattern extends DispatcherProvider {
+public class URLResolver extends URLResolveProvider {
 
 	private Pattern pattern;
 
@@ -28,7 +26,7 @@ public class URLPattern extends DispatcherProvider {
 	 * @param callback
 	 *            method name or classname.methodname
 	 */
-	public URLPattern(String regex, String callback) {
+	public URLResolver(String regex, String callback) {
 		this.regex = regex;
 		this.pattern = Pattern.compile(regex);
 		int indexOfLastDot = callback.lastIndexOf('.');
@@ -40,7 +38,7 @@ public class URLPattern extends DispatcherProvider {
 				Class<?> actionClass = Class.forName(className);
 				this.setActionClass(actionClass);
 			} catch (ClassNotFoundException e) {
-				throw new URLPatternException("Class '" + className
+				throw new URLResolveException("Class '" + className
 						+ "' not found, regex is " + regex + ", callback is " + callback, e);
 			}
 		} else {
@@ -48,11 +46,11 @@ public class URLPattern extends DispatcherProvider {
 		}
 	}
 
-	public URLPattern(Method view) {
+	public URLResolver(Method view) {
 		View anno = view.getAnnotation(View.class);
 		assert view.getAnnotation(View.class) != null;
 		this.regex = anno.pattern();
-		this.viewMethod = ViewMethod.create(view);
+		this.viewMethod = ViewMethod.create(this.pattern, view);
 	}
 
 	public void setRegexPrefix(String regexPrefix) {
@@ -71,21 +69,23 @@ public class URLPattern extends DispatcherProvider {
 		this.possibleMethods = new ArrayList<ViewMethod>();
 		for (Method method : actionClass.getMethods()) {
 			if (method.getName().equals(this.viewMethodName)) {
-				this.possibleMethods.add(ViewMethod.create(method));
+				this.possibleMethods.add(ViewMethod.create(this.pattern, method));
 			}
 		}
 		if (possibleMethods.size() == 0) {
-			throw new URLPatternException("Invalid Pattern:"
+			throw new URLResolveException("Invalid Pattern:"
 					+ this.pattern + " No Such Method '"
 					+ actionClass.getName() + "." + this.viewMethodName + "'");
 		}
 	}
 
-	public Response dispatch(Request request) throws URLDispatchException {
+	public <T> T visit(String path, URLVisitor<T> visitor) throws URLResolveException {
+		
 		List<String> pathVars = new ArrayList<String>();
-		Matcher matcher = this.pattern.matcher(request.getPath());
+		Matcher matcher = pattern.matcher(path);
+//		System.out.println(String.format("%s %s", pattern.toString(), path));
 		if (!matcher.matches()) {
-			return null;
+			return visitor.visit(pattern, new String[0], null);
 		}
 		for (int i = 1; i <= matcher.groupCount(); i++) {
 			pathVars.add(matcher.group(i));
@@ -93,22 +93,23 @@ public class URLPattern extends DispatcherProvider {
 		String[] vars = pathVars.toArray(new String[0]);
 		
 		synchronized (this) {
-			if (this.viewMethod == null) {
+			if (viewMethod == null) {
 				for(ViewMethod m : this.possibleMethods){
 					if (m.match(vars)){
-						this.viewMethod = m;
+						viewMethod = m;
 						break;
 					}
 				}
-				if (this.viewMethod == null){
-					return null;
+				if (viewMethod == null){
+					return visitor.visit(pattern, vars, null);
 				}
 			}
 		}
-		if(!this.viewMethod.match(vars)) {
-			return null;
+		if(!viewMethod.match(vars)) {
+			return visitor.visit(pattern, vars, null);
 		}
-		return this.viewMethod.handle(request, vars);
+		
+		return	visitor.visit(pattern, vars, viewMethod);
 	}
 
 	public String toString() {

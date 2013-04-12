@@ -1,5 +1,0 @@
-
-urlpatterns = patterns("", 
-	_("^/include$", "test.jplume.TestAction3.include"),
-	_("^/dyna", include("test.jplume.TestAction4"))
-)

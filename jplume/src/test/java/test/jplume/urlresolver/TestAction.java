@@ -1,4 +1,4 @@
-package test.jplume;
+package test.jplume.urlresolver;
 
 public class TestAction {
 

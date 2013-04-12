@@ -9,6 +9,7 @@ import javax.servlet.http.HttpServletResponse;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
 
+import jplume.conf.Settings;
 import jplume.http.AbstractResponse;
 
 public class TemplateResponse extends AbstractResponse {
@@ -17,14 +18,19 @@ public class TemplateResponse extends AbstractResponse {
 	
 	private Object context;
 	
-	public TemplateResponse(Template template, Object context) {
+	public TemplateResponse(Template template, String contentType, Object context) {
 		super(200);
 		this.setCharset(template.getEncoding());
+		this.setContentType(contentType);
 		this.ftlTemplate = template;
 		if (context == null) {
 			context = Collections.emptyMap();
 		}
 		this.context = context;
+	}
+
+	public TemplateResponse(Template template, Object context) {
+		this(template, Settings.getDefaultContentType(), context);
 	}
 	
 	@Override
