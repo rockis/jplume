@@ -94,6 +94,6 @@ public class UrlResolverTest {
 		URL u = getClass().getClassLoader().getResource("test/jplume/urlresolver/test.urls");
 		URLResolveProvider urp = URLResolveProvider.create("test/jplume/urlresolver/test.urls");
 		URLReverser ur = new URLReverser(urp);
-		System.out.println(ur.reverse("test.jplume.urlresolver.TestAction3", "param", new String[]{"19", "name", "20"}));
+		System.out.println(ur.reverse("test.jplume.urlresolver.TestAction3", "param", new String[]{"22", "name", "20"}));
 	}
 }
