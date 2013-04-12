@@ -14,6 +14,14 @@
 			<version>0.1</version>
 			<scope>runtime</scope>
 		</dependency>
+		
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-simple</artifactId>
+			<version>1.7.5</version>
+			<scope>runtime</scope>
+		</dependency>
+		
 	</dependencies>
 
 	<build>
@@ -33,7 +41,7 @@
 			<plugin>
 				<groupId>org.mortbay.jetty</groupId>
 				<artifactId>maven-jetty-plugin</artifactId>
-				<version>7.0.0.pre5</version>
+				<version>6.1.26</version>
 				<configuration>
 					<scanIntervalSeconds>10</scanIntervalSeconds>
 					<stopKey>foo</stopKey>

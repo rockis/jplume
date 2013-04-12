@@ -23,10 +23,7 @@ public abstract class DispatcherProvider {
 	abstract void setRegexPrefix(String prefix);
 	
 	public static DispatcherProvider create(String urlconf) {
-		if (urlconf.indexOf('/') > 0) { // urlconf is xxx.urls
-			if (!urlconf.endsWith(".urls")) {
-				urlconf = urlconf + ".urls";
-			}
+		if (urlconf.endsWith(".urls")) { // urlconf is xxx.urls
 			URL url = RequestDispatcher.class.getClassLoader().getResource(
 					urlconf);
 			if (url == null) {
@@ -74,7 +71,8 @@ public abstract class DispatcherProvider {
 		Method[] views = actionClass.getMethods();
 		List<URLPattern> patterns = new ArrayList<URLPattern>();
 		for (Method view : views) {
-			if (view.getAnnotation(View.class) != null) {
+			View anno = view.getAnnotation(View.class);
+			if (anno != null && !anno.pattern().isEmpty()) {
 				patterns.add(new URLPattern(view));
 			}
 		}

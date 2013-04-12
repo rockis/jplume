@@ -19,12 +19,12 @@ public class TemplateResponse extends AbstractResponse {
 	
 	public TemplateResponse(Template template, Object context) {
 		super(200);
+		this.setCharset(template.getEncoding());
 		this.ftlTemplate = template;
 		if (context == null) {
 			context = Collections.emptyMap();
 		}
 		this.context = context;
-		addHeader("Content-Type", "text/html; charset=utf-8");
 	}
 	
 	@Override

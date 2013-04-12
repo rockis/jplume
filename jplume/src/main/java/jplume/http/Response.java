@@ -11,4 +11,8 @@ public interface Response {
 	public void addHeader(String key, String value);
 	
 	public boolean hasHeader(String key);
+	
+	public int getContentLength();
+	
+	public String getContentType();
 }

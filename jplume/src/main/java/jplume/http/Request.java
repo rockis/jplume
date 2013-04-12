@@ -30,4 +30,6 @@ public interface Request {
 
 	public StringBuffer getRequestURL();
 	
+	public String getHeader(String name);
+	
 }

@@ -11,6 +11,7 @@
     body { font:small sans-serif; }
     body>div { border-bottom:1px solid #ddd; }
     h1 { font-weight:normal; }
+    h1 span { font-size:60%; color:#666; font-weight:normal; }
     h2 { margin-bottom:.8em; }
     h2 span { font-size:80%; color:#666; font-weight:normal; }
     h3 { margin:1em 0 .5em 0; }
@@ -21,7 +22,7 @@
     thead th { padding:1px 6px 1px 3px; background:#fefefe; text-align:left; font-weight:normal; font-size:11px; border:1px solid #ddd; }
     tbody th { width:12em; text-align:right; color:#666; padding-right:.5em; }
     table.vars { margin:5px 0 2px 40px; }
-    table.vars td, table.req td { font-family:monospace; }
+    table.vars td, table.request td { font-family:monospace; }
     table td.code { width:100%; }
     table td.code pre { overflow:hidden; }
     table.source th { color:#666; }
@@ -59,17 +60,17 @@
 </head>
 <body>
 <div id="summary">
-  <h1>${exception.class.name} at ${req.path}<span>(500)</span></h1>
+  <h1>${exception.class.name} at ${request.path}<span>(500)</span></h1>
   <pre class="exception_value">${exception.message?default('')}</pre>
   <table class="meta">
 
     <tr>
       <th>Request Method:</th>
-      <td>${req.method}</td>
+      <td>${request.method}</td>
     </tr>
     <tr>
       <th>Request URL:</th>
-      <td>${req.requestURL}</td>
+      <td>${request.requestURL}</td>
     </tr>
 
     <tr>

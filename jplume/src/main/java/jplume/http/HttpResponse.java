@@ -10,34 +10,29 @@ import jplume.conf.Settings;
 
 public class HttpResponse extends AbstractResponse {
 
-	private String charset = null;
-	
 	private InputStream content = null;
 	
-	public HttpResponse(int status, String mimeType, InputStream content, String contentType) {
+	
+	/**
+	 * 
+	 * @param status: http status code
+	 * @param mimeType: eg. text/html, application/json
+	 * @param content: content
+	 * @param contentType: eg. text/html; charset=utf-8
+	 */
+	public HttpResponse(int status, InputStream content, String contentType, String charset) {
 		super(status);
-		this.charset = Settings.defauleEncoding();
-		if (mimeType != null) {
-			contentType = mimeType;
-		}
-		if (contentType == null) {
-			contentType = Settings.defaultContentType() + "; charset=" + this.charset;
-		}
-		
 		this.content = content;
-		addHeader("Content-Type", contentType);
-	}
-	
-	public HttpResponse(int status, String mimeType, InputStream content) {
-		this(status, mimeType, content, null);
-	}
-	
-	public HttpResponse(int status, InputStream content, String contentType) {
-		this(status, null, content, contentType);
+		this.setContentType(contentType);
+		this.setCharset(charset);
 	}
 	
 	public HttpResponse(int status, InputStream content) {
-		this(status, content, null);
+		this(status, content, Settings.getDefaultContentType(), null);
+	}
+	
+	public HttpResponse(int status, InputStream content, String contentType) {
+		this(status, content, contentType, null);
 	}
 	
 	public HttpResponse(int status) {
@@ -53,7 +48,7 @@ public class HttpResponse extends AbstractResponse {
 	}
 	
 	public static Response notModified(String mimeType) {
-		HttpResponse resp =  new HttpResponse(HttpServletResponse.SC_NOT_MODIFIED, mimeType, null);
+		HttpResponse resp =  new HttpResponse(HttpServletResponse.SC_NOT_MODIFIED, null, mimeType);
 		return resp;
 	}
 	
@@ -66,11 +61,11 @@ public class HttpResponse extends AbstractResponse {
 	}
 	
 	public static Response internalError(Throwable e) {
-		return new HttpExceptResponse(e);
+		return new Http500Response(e);
 	}
 	
 	public static Response internalError(String message, Throwable e) {
-		return new HttpExceptResponse(message, e);
+		return new Http500Response(message, e);
 	}
 	
 	@Override

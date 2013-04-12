@@ -17,20 +17,15 @@ public class StandardErrorHandler implements ErrorHandler {
 	}
 	
 	public Response handle403(Request request) {
-		Map<String, Object> data = new HashMap<String, Object>();
-		data.put("req", request);
-		return tplEngine.render(getClass(), "403.html", data);
+		return tplEngine.render(getClass(), "403.html");
 	}
 	
 	public Response handle404(Request request) {
-		Map<String, Object> data = new HashMap<String, Object>();
-		data.put("req", request);
-		return tplEngine.render(getClass(), "404.html", data);
+		return tplEngine.render(getClass(), "404.html");
 	}
 	
 	public Response handle500(Request request, Throwable e) {
 		Map<String, Object> data = new HashMap<String, Object>();
-		data.put("req", request);
 		
 		Throwable except = e;
 		while(except.getCause() != null) {

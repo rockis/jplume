@@ -14,6 +14,7 @@ import javax.servlet.http.HttpServletResponse;
 import jplume.conf.InvalidConfigException;
 import jplume.conf.Settings;
 import jplume.http.HttpRequest;
+import jplume.http.Request;
 import jplume.http.Response;
 
 
@@ -40,8 +41,10 @@ public class FrontFilter implements Filter{
 	
 	public void doFilter(ServletRequest _req, ServletResponse _resp,
 			FilterChain chain) throws IOException, ServletException {
-
-		Response resp = dispatcher.dispatch(new HttpRequest((HttpServletRequest)_req));
+		Request request = new HttpRequest((HttpServletRequest)_req);
+		ActionContext.setRequest(request);
+		
+		Response resp = dispatcher.dispatch(request);
 		resp.apply((HttpServletResponse)_resp);
 	}
 

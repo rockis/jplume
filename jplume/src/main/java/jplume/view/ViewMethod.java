@@ -3,6 +3,7 @@ package jplume.view;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.TreeMap;
 
@@ -16,7 +17,7 @@ import jplume.http.Request;
 import jplume.http.Response;
 import jplume.view.annotations.PathVar;
 import jplume.view.annotations.QueryVar;
-import jplume.view.annotations.RequireHttpMethod;
+import jplume.view.annotations.View;
 
 public class ViewMethod {
 
@@ -29,15 +30,12 @@ public class ViewMethod {
 	 */
 	private final TreeMap<Integer, Argument> arguments;
 	
-	private final boolean requireRequest;
-
-	private final List<String> requireMethods;
+	private final String[] requireMethods;
 
 	private ViewMethod(Method method, TreeMap<Integer, Argument> arguments, 
-			            boolean requireRequest, List<String> requireMethods) {
+			            String[] requireMethods) {
 		this.method = method;
 		this.arguments = arguments;
-		this.requireRequest = requireRequest;
 		this.requireMethods = requireMethods;
 	}
 
@@ -46,7 +44,6 @@ public class ViewMethod {
 
 		TreeMap<Integer, Argument> arguments = new TreeMap<Integer, Argument>();
 
-		boolean requireRequest = false;
 		int argIndex = 0;
 		int pathIndex = 0;
 		for (Annotation[] annotations : method.getParameterAnnotations()) {
@@ -72,24 +69,18 @@ public class ViewMethod {
 				}else {
 					throw new URLPatternException("Annotation of view method's argument must be PathVar or QueryVar");
 				}
-			}else if (argIndex == argumentTypes.length -1 ) {
-				if (Request.class.isAssignableFrom(argumentTypes[argIndex])) {
-					requireRequest = true;
-				}
 			}else{
-				throw new URLPatternException("Invalid Argument:" + argIndex + " of method " + method.getName());
+				throw new URLPatternException("Invalid Argument:" + argIndex + " of method " + method.getDeclaringClass() + ":" + method.getName());
 			}
 			argIndex++;
 		}
 
-		List<String> requireMethods = new ArrayList<String>();
-		for (Annotation annotation : method.getAnnotations()) {
-			if (annotation instanceof RequireHttpMethod) {
-				requireMethods.add(((RequireHttpMethod) annotation).method()
-						.toLowerCase());
-			}
+		String[] requireMethods = new String[0];
+		View anno = method.getAnnotation(View.class);
+		if (anno != null) {
+			requireMethods = anno.methods();
 		}
-		return new ViewMethod(method, arguments, requireRequest, requireMethods);
+		return new ViewMethod(method, arguments, requireMethods);
 	}
 
 	public boolean match(String[] pathVars) {
@@ -107,9 +98,8 @@ public class ViewMethod {
 
 	public Response handle(Request request, String... pathVars) {
 		try {
-			if (requireMethods.size() > 0
-					&& requireMethods
-							.indexOf(request.getMethod().toLowerCase()) < 0) {
+			if (requireMethods.length > 0
+					&& Arrays.binarySearch(requireMethods, request.getMethod().toLowerCase()) < 0) {
 				return HttpResponse.forbidden();
 			}
 			Class<?> actionClass = this.method.getDeclaringClass();
@@ -121,9 +111,6 @@ public class ViewMethod {
 				arguments.add(argument.get(request, pathVars));
 			}
 
-			if (requireRequest) {
-				arguments.add(request);
-			}
 			Response resp = null;
 			Class<?> returnType = this.method.getReturnType();
 			if (returnType.equals(String.class)) {

@@ -21,12 +21,6 @@
 		</dependency>
 
 		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-log4j12</artifactId>
-			<version>1.7.5</version>
-		</dependency>
-
-		<dependency>
 			<groupId>javax.servlet</groupId>
 			<artifactId>javax.servlet-api</artifactId>
 			<version>3.0.1</version>
@@ -47,6 +41,7 @@
 		<outputDirectory>
 			target/jplume/WEB-INF/classes
 		</outputDirectory>
+		<!-- 
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -94,6 +89,7 @@
 				</executions>
 			</plugin>
 		</plugins>
+		 -->
 	</build>
-	<packaging>war</packaging>
+	<packaging>jar</packaging>
 </project>

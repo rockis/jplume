@@ -24,7 +24,11 @@ public abstract class AbstractRequest implements Request {
 		return meta;
 	}
 	
-	
+	@Override
+	public String getHeader(String name) {
+		return rawRequest.getHeader(name);
+	}
+
 	@Override
 	public String getParam(String key) {
 		return rawRequest.getParameter(key);

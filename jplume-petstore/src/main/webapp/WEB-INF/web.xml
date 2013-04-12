@@ -8,7 +8,10 @@
 		<filter-name>JPlumeFrontFilter</filter-name>
 		<filter-class>
 			jplume.core.FrontFilter</filter-class>
-		
+		<init-param>
+		    <param-name>USER_CONFIG_FILE</param-name>
+		    <param-value>petstore.json</param-value>
+		</init-param>
 	</filter>
 
 	<filter-mapping>

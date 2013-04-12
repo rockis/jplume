@@ -50,9 +50,10 @@ public class Settings {
 		}
 	}
 	
-	public static String get(String key, String defaultVal){
+	@SuppressWarnings("unchecked")
+	public static <T> T get(String key, T defaultVal){
 		Object val =  jsEngine.get(key);
-		return val == null ? defaultVal : val.toString();
+		return val == null ? defaultVal : (T)val;
 	}
 	
 	public static boolean getBoolean(String key, boolean defaultVal){
@@ -82,11 +83,11 @@ public class Settings {
 		return (List<T>)jsEngine.get(key);
 	}
 
-	public static String defauleEncoding() {
+	public static String getDefauleEncoding() {
 		return get("DEFAULT_ENCODING", "utf-8");
 	}
 	
-	public static String defaultContentType() {
+	public static String getDefaultContentType() {
 		return get("DEFAULT_CONTENT_TYPE", "text/html");
 	}
 	

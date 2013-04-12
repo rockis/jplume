@@ -22,6 +22,7 @@ import jplume.template.annotations.TemplateFunction;
 import freemarker.cache.FileTemplateLoader;
 import freemarker.cache.TemplateLoader;
 import freemarker.cache.WebappTemplateLoader;
+import freemarker.ext.beans.BeansWrapper;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
@@ -101,13 +102,24 @@ public class FreemarkerEngine extends TemplateEngine {
 		
 		c.setTemplateExceptionHandler(TemplateExceptionHandler.HTML_DEBUG_HANDLER);
 		
+		BeansWrapper wrapper = new BeansWrapper();
+       wrapper.setExposureLevel(BeansWrapper.EXPOSE_ALL);
+       
+       c.setSharedVariable("base", ActionContext.getContext().getContextPath());;
+		c.setSharedVariable("settings", new StaticClassModel(Settings.class, wrapper));
+		c.setSharedVariable("request", wrapper.wrap(new RequestModel()));
+		
 		Map<String, Object> engineConfig = Settings.getMap("TEMPLATE_ENGINE");
+		@SuppressWarnings("unchecked")
+		Map<String, String> properties = (Map<String, String>)engineConfig.get("freemarker");
+		for(Map.Entry<String, String> entry : properties.entrySet()) {
+			c.setSetting(entry.getKey(), entry.getValue());
+		}
 		createBuiltinFunctions(engineConfig, c);
 		return c;
 	}
 	
 	protected void createBuiltinFunctions(Map<String, Object> engineConfig, Configuration config) {
-		
 		@SuppressWarnings("unchecked")
 		List<String> funcs = (List<String>)engineConfig.get("functions");
 		for(String className : funcs) {

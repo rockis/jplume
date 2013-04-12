@@ -9,16 +9,16 @@ import javax.servlet.http.HttpServletResponse;
 
 import jplume.conf.Settings;
 
-public class HttpExceptResponse  extends AbstractResponse {
+public class Http500Response  extends AbstractResponse {
 
 	private String message;
 	private Throwable exception;
 	
-	public HttpExceptResponse(Throwable e) {
+	public Http500Response(Throwable e) {
 		this(null, e);
 	}
 	
-	public HttpExceptResponse(String message, Throwable e) {
+	public Http500Response(String message, Throwable e) {
 		super(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 		this.exception = e;
 		this.message = message == null ? e.getMessage() : message;

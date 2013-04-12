@@ -1,7 +1,0 @@
-
-urlpatterns = patterns("jplume.example.ExampleAction", 
-	_("^/$", "index"),
-	_("^/((stylesheet|js|images)/.*)$", "media"),
-	_("^/query/([\\d]+)$", "query"),
-	_("^/d", include('jplume.example.ExampleAction'))
-)

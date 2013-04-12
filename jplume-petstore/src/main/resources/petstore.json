@@ -4,12 +4,14 @@
 
 DEBUG = true
 
-ROOT_URLCONF = "jplume/example/example";
+ROOT_URLCONF = "petstore.urls"
 
 MEDIA_ROOT = "/media/ads-m/workspace/4.5.88.4/04_Code/web/www"
 	
 USE_ETAGS = true
-	
+
+DEBUG_ACCESSLOG = true;
+
 DEFAULT_CONTENT_TYPE = 'text/html'
 DEFAULT_ENCODING = 'utf-8'
 	
