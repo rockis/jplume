@@ -48,7 +48,7 @@ public class IndexAction {
 		return TemplateEngine.get().render("helloworld.html");
 	}
 	
-	public Response media(@PathVar(index=1) String mediaPath) {
+	public Response media(@PathVar(name="path") String mediaPath) {
 		String mediaRoot = Settings.get("MEDIA_ROOT");
 		if (mediaRoot == null) {
 			return HttpResponse.notFound();

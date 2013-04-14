@@ -9,6 +9,6 @@ import java.lang.annotation.Target;
 @Target(ElementType.PARAMETER)
 public @interface PathVar {
 	
-	public int index() default 0;
+	public String name() default "";
 	
 }

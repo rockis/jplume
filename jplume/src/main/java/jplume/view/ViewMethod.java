@@ -6,8 +6,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.SortedMap;
-import java.util.TreeMap;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 import org.slf4j.Logger;
@@ -31,25 +30,23 @@ public class ViewMethod {
 	/**
 	 * key: index of pathvar
 	 */
-	private final SortedMap<Integer, Argument> arguments;
-	
+	private final ArgumentBuilder argBuilder;
 	private final String[] requireMethods;
 
-	private ViewMethod(Pattern pattern, Method method, TreeMap<Integer, Argument> arguments, 
+	private ViewMethod(Pattern pattern, Method method, ArgumentBuilder argBuilder, 
 			            String[] requireMethods) {
 		this.pattern   = pattern;
 		this.method    = method;
-		this.arguments = arguments;
+		this.argBuilder = argBuilder;
 		this.requireMethods = requireMethods;
 	}
+	
 
 	public static ViewMethod create(Pattern pattern, Method method) throws ViewException {
 		Class<?>[] argumentTypes = method.getParameterTypes();
 
-		TreeMap<Integer, Argument> arguments = new TreeMap<Integer, Argument>();
-
+		ArgumentBuilder argBuilder = new ArgumentBuilder();
 		int argIndex = 0;
-		int pathIndex = 0;
 		for (Annotation[] annotations : method.getParameterAnnotations()) {
 			if (annotations.length > 1) {
 				throw new ViewException("View method's argument has one annotation as most");
@@ -57,19 +54,18 @@ public class ViewMethod {
 				Annotation annotation = annotations[0];
 				if (annotation instanceof PathVar) {
 					PathVar anno = (PathVar) annotation;
-					int pi = pathIndex;
-					if (anno.index() > 0) {
-						pi = anno.index() - 1;
+					if (anno.name().length() == 0) {
+						argBuilder.addArgument(new PathIndexedArgument(
+							argumentTypes[argIndex], argIndex));
+					}else{
+						argBuilder.addArgument(new PathNamedArgument(
+								argumentTypes[argIndex], anno.name()));
 					}
-					arguments.put(argIndex, new PathArgument(
-							argumentTypes[argIndex], pi));
-					pathIndex++;
-
 				}else if (annotation instanceof QueryVar) {
 					QueryVar anno = (QueryVar) annotation;
 					String name = anno.name();
 					String defval = anno.defval();
-					arguments.put(argIndex, new QueryArgument(argumentTypes[argIndex], name, defval));
+					argBuilder.addArgument(new QueryArgument(argumentTypes[argIndex], name, defval));
 				}else {
 					throw new ViewException("Annotation of view method's argument must be PathVar or QueryVar");
 				}
@@ -84,7 +80,23 @@ public class ViewMethod {
 		if (anno != null) {
 			requireMethods = anno.methods();
 		}
-		return new ViewMethod(pattern, method, arguments, requireMethods);
+		
+//		// check
+//		int indexArgCount = 0;
+//		if (indexArgCount != argBuilder.pathIndexedArgs.size()) {
+//			throw new ViewException("Indexed path argument number not match:" + indexArgCount + ":" + argBuilder.pathIndexedArgs.size());
+//		}
+//		String[] namedArgs = new String[0];
+//		if (namedArgs.length != argBuilder.pathNamedArgs.size()) {
+//			throw new ViewException("Named path argument number not match:" + namedArgs.length + ":" + argBuilder.pathNamedArgs.size());
+//		}
+//		for (PathNamedArgument arg : argBuilder.pathNamedArgs) {
+//			if (Arrays.binarySearch(namedArgs, arg.argName) < 0){
+//				throw new ViewException("Named path argument '" + arg.argName + "'number not found within pattern '" + pattern);
+//			}
+//		}
+		
+		return new ViewMethod(pattern, method, argBuilder, requireMethods);
 	}
 	
 	public Pattern getPattern() {
@@ -99,30 +111,21 @@ public class ViewMethod {
 		return requireMethods;
 	}
 
-	public PathArgument[] getPathArguments() {
-		TreeMap<Integer, PathArgument> args = new TreeMap<>();
-		for (Argument argument : arguments.values()) {
-			if (argument instanceof PathArgument) {
-				args.put(((PathArgument)argument).pathIndex, ((PathArgument)argument));
-			}
-		}
-		return args.values().toArray(new PathArgument[0]);
+	public ArgumentBuilder getArgBuilder() {
+		return argBuilder;
 	}
+	
+//	public PathIndexedArgument[] getPathArguments() {
+//		TreeMap<Integer, PathIndexedArgument> args = new TreeMap<>();
+//		for (Argument argument : arguments.values()) {
+//			if (argument instanceof PathIndexedArgument) {
+//				args.put(((PathIndexedArgument)argument).pathIndex, ((PathIndexedArgument)argument));
+//			}
+//		}
+//		return args.values().toArray(new PathIndexedArgument[0]);
+//	}
 
-	public boolean match(String[] pathVars) {
-		for (Argument argument : arguments.values()) {
-			if (argument instanceof PathArgument) {
-				int pathIndex = ((PathArgument)argument).pathIndex;
-				String var = pathVars[pathIndex];
-				if (!Converter.isValid(argument.type, var)) {
-					return false;
-				}
-			}
-		}
-		return true;
-	}
-
-	public Response handle(Request request, String... pathVars) {
+	public Response handle(Request request, String[] indexedVars, Map<String, String> namedVars) {
 		try {
 			if (requireMethods.length > 0
 					&& Arrays.binarySearch(requireMethods, request.getMethod().toLowerCase()) < 0) {
@@ -131,20 +134,14 @@ public class ViewMethod {
 			Class<?> actionClass = this.method.getDeclaringClass();
 			Object action = actionClass.newInstance();
 			
-			List<Object> arguments = new ArrayList<Object>();
+			Object[] args = argBuilder.build(request, indexedVars, namedVars);
 			
-			for (Argument argument : this.arguments.values()) {
-				arguments.add(argument.get(request, pathVars));
-			}
-
 			Response resp = null;
 			Class<?> returnType = this.method.getReturnType();
 			if (returnType.equals(String.class)) {
-				resp = HttpResponse.ok((String) this.method.invoke(action,
-						arguments.toArray(new Object[0])));
+				resp = HttpResponse.ok((String) this.method.invoke(action, args));
 			} else if (Response.class.isAssignableFrom(returnType)) {
-				resp = (Response) this.method.invoke(action,
-						arguments.toArray(new Object[0]));
+				resp = (Response) this.method.invoke(action, args);
 			}
 			return resp;
 		} catch (Exception e) {
@@ -167,41 +164,150 @@ public class ViewMethod {
 			return type;
 		}
 		
-		abstract public Object get(Request request, String... pathVars);
-		
+		protected Object convert(String val) {
+			return Converter.convert(this.type, val);
+		}
 	}
 	
-	public static class PathArgument extends Argument{
+	public static abstract class PathArgument extends Argument {
+		public PathArgument(Class<?> type) {
+			super(type);
+		}
+		
+		protected boolean validate(String val) {
+			return Converter.validate(type, val);
+		}
+		
+		protected abstract boolean validate(String[] indexedVars, Map<String, String> namedVars);
+	}
+	public static class PathIndexedArgument extends PathArgument{
 		private int pathIndex;
 
-		public PathArgument(Class<?> type, int pathIndex) {
+		private PathIndexedArgument(Class<?> type, int pathIndex) {
 			super(type);
 			this.pathIndex = pathIndex;
 		}
+		
+		public int getArgIndex() {
+			return this.pathIndex;
+		}
 
-		@Override
-		public Object get(Request request, String... pathVars) {
-			return Converter.convert(this.type, pathVars[pathIndex]);
+		protected Object get(String[] indexedVars) {
+			return convert(indexedVars[pathIndex]);
+		}
+		
+		protected boolean validate(String[] indexedVars, Map<String, String> namedVars) {
+			return validate(indexedVars[pathIndex]);
 		}
 	}
+	
+	public static class PathNamedArgument extends PathArgument{
+		private String argName = null;
+
+		public PathNamedArgument(Class<?> type, String argName) {
+			super(type);
+			this.argName = argName;
+		}
+
+		public String getArgName() {
+			return argName;
+		}
+		
+		private Object get(Map<String, String> namedVars) {
+			return convert(namedVars.get(this.argName));
+		}
+		
+		protected boolean validate(String[] indexedVars, Map<String, String> namedVars) {
+			String val = namedVars.get(argName);
+			if (val == null) {
+				return false;
+			}
+			return validate(namedVars.get(argName));
+		}
+	}
+	
 	
 	public static class QueryArgument extends Argument {
 		private String name;
 		private String defval;
 
-		public QueryArgument(Class<?> type, String name, String defval) {
+		private QueryArgument(Class<?> type, String name, String defval) {
 			super(type);
 			this.name   = name;
 			this.defval = defval;
 		}
 
-		@Override
-		public Object get(Request request, String... pathVars) {
+		private Object get(Request request) {
 			String val = request.getParam(name);
-			if (val == null || !Converter.isValid(this.type, val)) {
-				return Converter.convert(this.type, defval);
+			if (val == null || !Converter.validate(this.type, val)) {
+				return convert(defval);
 			}
-			return Converter.convert(this.type, val);
+			return convert(val);
 		}
+	}
+	
+	public static class ArgumentBuilder {
+		
+		private List<PathIndexedArgument> pathIndexedArgs = new ArrayList<>();
+		private List<PathNamedArgument> pathNamedArgs = new ArrayList<>();
+		private List<QueryArgument> querydArgs = new ArrayList<>();
+		
+		private void addArgument(Argument arg){
+			if (arg instanceof PathIndexedArgument){
+				this.pathIndexedArgs.add((PathIndexedArgument)arg);
+			}else if (arg instanceof PathNamedArgument) {
+				this.pathNamedArgs.add((PathNamedArgument)arg);
+			}else if (arg instanceof QueryArgument) {
+				this.querydArgs.add((QueryArgument)arg);
+			}else{
+				throw new IllegalStateException("Unsupported argument type");
+			}
+		}
+		
+		public boolean validate(String[] indexedVars, Map<String, String> namedVars) {
+			for(Argument arg : pathIndexedArgs) {
+				if (!((PathArgument)arg).validate(indexedVars, namedVars)){
+					return false;
+				}
+			}
+			for(Argument arg : pathNamedArgs) {
+				if (!((PathNamedArgument)arg).validate(indexedVars, namedVars)){
+					return false;
+				}
+			}
+			return true;
+		}
+		
+		private Object[] build(Request request, String[] indexedVars, Map<String, String> namedVars) {
+			Object[] args = new Object[pathIndexedArgs.size() + pathNamedArgs.size() + querydArgs.size() ];
+			int i = 0;
+			if (pathNamedArgs.size() == 0) {
+				for (PathIndexedArgument arg : pathIndexedArgs) {
+					args[i++] = arg.get(indexedVars);
+				}
+			}else{
+				for (PathNamedArgument arg : pathNamedArgs) {
+					args[i++] = arg.get(namedVars);
+				}
+			}
+			for (QueryArgument arg : querydArgs) {
+				args[i++] = arg.get(request);
+			}
+			return args;
+		}
+
+		public List<PathIndexedArgument> getPathIndexedArgs() {
+			return Collections.unmodifiableList(pathIndexedArgs);
+		}
+
+		public List<PathNamedArgument> getPathNamedArgs() {
+			return Collections.unmodifiableList(pathNamedArgs);
+		}
+
+		public List<QueryArgument> getQuerydArgs() {
+			return Collections.unmodifiableList(querydArgs);
+		}
+		
+		
 	}
 }

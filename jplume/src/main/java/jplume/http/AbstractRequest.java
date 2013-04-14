@@ -38,7 +38,7 @@ public abstract class AbstractRequest implements Request {
 	@Override
 	public <T> T getParam(String key, T defval) {
 		String val = rawRequest.getParameter(key);
-		if (val == null || !Converter.isValid(defval.getClass(), val)){
+		if (val == null || !Converter.validate(defval.getClass(), val)){
 			return defval;
 		}
 		return (T)Converter.convert(defval.getClass(), val);

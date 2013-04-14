@@ -17,7 +17,7 @@ import jplume.view.annotations.View;
 
 public abstract class URLResolveProvider {
 	
-	abstract public <T> T visit(String path, URLVisitor<T> visitor) throws URLResolveException;
+	abstract public <T> T visit(String path, URLVisitor<T> visitor) throws IllegalURLPattern;
 	
 	abstract void setRegexPrefix(String prefix);
 	
@@ -26,7 +26,7 @@ public abstract class URLResolveProvider {
 			URL url = RequestDispatcher.class.getClassLoader().getResource(
 					urlconf);
 			if (url == null) {
-				throw new URLResolveException("Cannot read urlconf '"
+				throw new IllegalURLPattern("Cannot read urlconf '"
 						+ urlconf + "'");
 			}
 			// urlconf in classpath
@@ -36,7 +36,7 @@ public abstract class URLResolveProvider {
 				Class<?> actionClass = Class.forName(urlconf);
 				return create(actionClass);
 			} catch (ClassNotFoundException e) {
-				throw new URLResolveException("Cannot read urlconf '"
+				throw new IllegalURLPattern("Cannot read urlconf '"
 						+ urlconf + "'", e);
 			}
 		}
@@ -57,10 +57,10 @@ public abstract class URLResolveProvider {
 			return (URLResolveProvider) jsEngine.get("urlpatterns");
 
 		} catch (ScriptException e) {
-			throw new URLResolveException("Urlconf '"
+			throw new IllegalURLPattern("Urlconf '"
 					+ urlconf.toString() + "' has an error", e);
 		} catch (IOException e) {
-			throw new URLResolveException("Cannot read urlconf '"
+			throw new IllegalURLPattern("Cannot read urlconf '"
 					+ urlconf.toString() + "'", e);
 		}
 	}
@@ -89,7 +89,7 @@ public abstract class URLResolveProvider {
 				return new URLResolverGroup(patterns);
 			}
 		} catch (ClassNotFoundException e) {
-			throw new URLResolveException("Invalid Pattern: No Such Class '"
+			throw new IllegalURLPattern("Invalid Pattern: No Such Class '"
 					+ actionClassName + "'");
 		}
 	}

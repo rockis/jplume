@@ -2,6 +2,7 @@ package jplume.core;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 import org.slf4j.Logger;
@@ -10,7 +11,7 @@ import org.slf4j.LoggerFactory;
 import jplume.interceptors.Interceptor;
 import jplume.conf.URLResolveProvider;
 import jplume.conf.Settings;
-import jplume.conf.URLResolveException;
+import jplume.conf.IllegalURLPattern;
 import jplume.conf.URLVisitor;
 import jplume.http.HttpResponse;
 import jplume.http.Request;
@@ -43,7 +44,7 @@ public class RequestDispatcher {
 		}
 	}
 
-	public Response dispatch(final Request request) throws URLResolveException{
+	public Response dispatch(final Request request) throws IllegalURLPattern{
 		
 		Response respTmp = beforeDispatch(request);
 		if (respTmp != null) {
@@ -53,11 +54,11 @@ public class RequestDispatcher {
 		try {
 			resp = resolver.visit(request.getPath(), new URLVisitor<Response>() {
 				@Override
-				public Response visit(Pattern pattern, String[] pathVars, ViewMethod viewMethod, boolean matched) {
+				public Response visit(Pattern pattern, String[] indexedVars, Map<String, String> namedVars, ViewMethod viewMethod, boolean matched) {
 					if (!matched) {
 						return null;
 					}
-					return viewMethod.handle(request, pathVars);
+					return viewMethod.handle(request, indexedVars, namedVars);
 				}
 			});
 		} catch (Exception e) {

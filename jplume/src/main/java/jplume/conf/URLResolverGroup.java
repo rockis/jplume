@@ -17,7 +17,7 @@ public class URLResolverGroup extends URLResolveProvider{
 		urlpatterns = patterns;
 	}
 
-	public <T> T visit(String path, URLVisitor<T> visitor) throws URLResolveException {
+	public <T> T visit(String path, URLVisitor<T> visitor) throws IllegalURLPattern {
 		for (URLResolveProvider pattern : urlpatterns) {
 			T resp = pattern.visit(path, visitor);
 			if (resp != null) return resp;

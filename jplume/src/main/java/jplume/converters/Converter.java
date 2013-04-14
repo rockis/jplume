@@ -30,7 +30,7 @@ public class Converter {
 		return null;
 	}
 	
-	public static boolean  isValid(Class<?> type, String value) {
+	public static boolean  validate(Class<?> type, String value) {
 		if (converters.containsKey(type)) {
 			return converters.get(type).isValid(value);
 		}

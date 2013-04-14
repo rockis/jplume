@@ -2,10 +2,10 @@ package test.jplume.urlresolver;
 
 import jplume.view.annotations.PathVar;
 
-public class TestAction3 {
+public class TestIncludeAction {
 
-	public String include() {
-		return "include";
+	public String includeme() {
+		return "include me";
 	}
 	
 	/**
