@@ -21,7 +21,8 @@ import jplume.view.ErrorHandler;
 
 class MatchGroup {
 	
-	private StringBuffer pattern = new StringBuffer();
+	private final Pattern GROUPNAME_PATTERN = Pattern.compile("\\(\\?<([a-zA-Z][a-zA-Z0-9]*)>");
+	private StringBuffer regex = new StringBuffer();
 	private MatchGroup parent = null;
 	
 	public MatchGroup(MatchGroup parent) {
@@ -31,37 +32,41 @@ class MatchGroup {
 	public MatchGroup() {}
 
 	public void append(char c) {
-		this.pattern.append(c);
+		this.regex.append(c);
 	}
 
-	public boolean decline(String var) {
-		Matcher m = Pattern.compile("(" + pattern.toString() + ")").matcher(var);
-		if (m.matches()) {
-			this.parent.pattern.append(m.group(1));
-			return true;
+	public String name() {
+		Matcher m = GROUPNAME_PATTERN.matcher("(" + this.regex + ")");
+		while(m.find()) {
+			return m.group(1);
 		}
-		return false;
+		return null;
 	}
-
-	public boolean decline(String name, String var) {
-		Matcher m = Pattern.compile("(" + pattern.toString() + ")").matcher(var);
-		try {
-			if (m.matches() && m.group(name) != null) {
-				this.parent.pattern.append(m.group(name));
-				return true;
-			}
-		} catch (Exception e) {
-			System.out.println("(" + pattern.toString() + ")" + ",");
+	
+	public boolean decline(String var) {
+		Pattern pattern = Pattern.compile("(" + regex.toString() + ")");
+		Matcher m = pattern.matcher(var);
+		if (m.matches()) {
+			this.parent.regex.append(m.group(1));
+			return true;
+		}else{
+			this.parent.regex.append(pattern.toString());
 		}
 		return false;
 	}
 	
+	public boolean decline() {
+		Pattern pattern = Pattern.compile("(" + regex.toString() + ")");
+		this.parent.regex.append(pattern.toString());
+		return false;
+	}
+
 	public MatchGroup parent() {
 		return parent;
 	}
 	
 	public String toString() {
-		return pattern.toString();
+		return regex.toString();
 	}
 }
 public class Test {
@@ -71,32 +76,28 @@ public class Test {
 		LinkedList<String> vars = new LinkedList<>(Arrays.asList(_vars));
 		MatchGroup top = new MatchGroup();
 		char[] cs = pattern.toCharArray();
-		char previous = 0;
 		
 		for(int i = 0; i < cs.length; i++) {
 			char c = cs[i];
-			if (previous != '\\') {
+			if (i == 0 || cs[i - 1] != '\\') {
 				if (c == '(') {
 					top = new MatchGroup(top);
-					previous = c;
 					continue;
 				}
 				if (c == ')') {
 					MatchGroup cu = top;
-					String var = vars.pollFirst();
-					if (!cu.decline(var)) {
-						//TODO
+					String var = vars.peekFirst();
+					if (cu.decline(var)) {
+						vars.pollFirst();
 					}
 					top = top.parent();
-					previous = c;
 					continue;
 				}
 			}
 			top.append(c);
-			previous = c;
 		}
 		if (vars.size() > 0) {
-			//TODO
+			System.out.println("err");
 		}
 		String url = top.toString();
 		if (url.charAt(0) == '^') {
@@ -113,39 +114,33 @@ public class Test {
 		
 		MatchGroup top = new MatchGroup();
 		char[] cs = pattern.toCharArray();
-		char previous = 0;
 		
 		for(int i = 0; i < cs.length; i++) {
 			char c = cs[i];
-			if (previous != '\\') {
+			if (i == 0 || cs[i - 1] != '\\') {
 				if (c == '(') {
 					top = new MatchGroup(top);
-					previous = c;
 					continue;
 				}
 				if (c == ')') {
 					MatchGroup cu = top;
-					boolean matched = false;
-					for(String name: namedArgs.keySet()) {
-						if (cu.decline(name, namedArgs.get(name))) {
-							matched = true;
+					top = top.parent();
+					String name = cu.name();
+					if (name == null) {
+						cu.decline();
+					}else{
+						if (cu.decline(namedArgs.get(name))) {
 							namedArgs.remove(name);
-							break;
 						}
 					}
-					if (!matched) {
-						//TODO
-					}
-					top = top.parent();
-					previous = c;
 					continue;
 				}
 			}
 			top.append(c);
-			previous = c;
 		}
 		if (namedArgs.size() > 0) {
 			//TODO
+			System.out.println("err2");
 		}
 		String url = top.toString();
 		if (url.charAt(0) == '^') {
@@ -162,19 +157,19 @@ public class Test {
 	 */
 	public static void main(String[] args) throws Exception {
 //
-		String pp = "^/media/((stylesheet|js|images)/(.*js))/(true|false)$";
-		String[] vars = new String[]{"images", "ui.js", "images/ui.js", "false"};
+		String pp = "^/param/(\\d+)/([\\w]+)/([\\d]+)$";
+		String[] vars = new String[]{"20", "uijs", "30"};
 		System.out.println(testIndexed(pp, vars));
 		
-		pp = "^/media/(?<arg1>[\\w]+)/(?<arg2>[\\d]+)$";
+		pp = "^/media/(?<arg1>([\\w]+))/(?<arg2>([\\d]+))$";
 		Map<String, String> namedVars = new HashMap<>();
 		namedVars.put("arg1", "ui");
 		namedVars.put("arg2", "456");
 		System.out.println(testNamed(pp, namedVars));
-		
-		pp = "^(/media/(?<arg1>[\\w]+))$";
+
+		pp = "^(/media/(?<arg1>(js|css)/([\\w]+))$";
 		namedVars.clear();
-		namedVars.put("arg1", "ui");
+		namedVars.put("arg1", "js/ui");
 		System.out.println(testNamed(pp, namedVars));
 //		int c = 10 * 10000;
 //		long s = System.currentTimeMillis();

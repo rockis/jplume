@@ -1,19 +1,30 @@
 package test.jplume;
 
 import java.net.URL;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
 
+import jplume.conf.Settings;
+import jplume.conf.URLReserveException;
 import jplume.conf.URLResolveProvider;
 import jplume.conf.URLReverser;
 import jplume.conf.URLVisitor;
 import jplume.view.ViewMethod;
 
+import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
 public class UrlResolverTest {
 
+
+	@Before
+	public void setUp() throws Exception {
+		Settings.initalize("jplume-test.json");
+	}
+
+	
 	@Test
 	public void test() {
 		URLResolveProvider urp = URLResolveProvider.create("test/jplume/urlresolver/test.urls");
@@ -106,14 +117,17 @@ public class UrlResolverTest {
 			}
 		});
 		assertEquals(result.getMethod().getName(), "includeme");
-		// test _("^/include/param/(\d+)/([\w]+)/(\d+)$", "test.jplume.urlresolver.TestAction3.include"),
+		// test _("^/include/param/(\d+)/([\w]+)/([\d]+)$", "test.jplume.urlresolver.TestAction3.include"),
 		result = urp.visit("/include/param/19/name/20", new URLVisitor<ViewMethod>() {
 			@Override
 			public ViewMethod visit(Pattern pattern, String[] pathVars, Map<String, String> namedVars,
 					ViewMethod method, boolean matched) {
 				if (matched) {
 					assertEquals(pathVars.length, 3);
-					assertEquals(pattern.toString(), "^/include/param/(\\d+)/([\\w]+)/(\\d+)$");
+					assertEquals(pathVars[0], "19");
+					assertEquals(pathVars[1], "name");
+					assertEquals(pathVars[2], "20");
+					assertEquals(pattern.toString(), "^/include/param/(\\d+)/([\\w]+)/([\\d]+)$");
 					return method;
 				}
 				return null;
@@ -126,7 +140,31 @@ public class UrlResolverTest {
 	public void testReverse() {
 		URLResolveProvider urp = URLResolveProvider.create("test/jplume/urlresolver/test.urls");
 		URLReverser ur = new URLReverser(urp);
-		String url = (ur.reverse("test.jplume.urlresolver.TestIncludeAction", "param", new String[]{"22", "name", "20"}));
+		String url = (ur.reverse(".TestIncludeAction", "param", new String[]{"22", "name", "20"}));
 		assertEquals("/include/param/22/name/20", url);
+		
+		url = (ur.reverse(".TestSimpleAction", "indexedVars", new String[]{"nma", "20"}));
+		assertEquals("/indexed/nma/20", url);
+		
+		Map<String, String> args = new HashMap<String, String>();
+		args.put("arg1", "nma");
+		args.put("arg2", "20");
+		url = ur.reverse(".TestSimpleAction", "namedVars", args);
+		assertEquals("/named/nma/20", url);
+		args.put("arg3", "err");
+		try {
+			url = ur.reverse(".TestSimpleAction", "namedVars", args);
+			assertTrue(false);
+		} catch (URLReserveException e) {
+			assertTrue(true);
+		}
+		args.clear();
+		args.put("arg3", "err");
+		try {
+			url = ur.reverse(".TestSimpleAction", "namedVars", args);
+			assertTrue(false);
+		} catch (URLReserveException e) {
+			assertTrue(true);
+		}
 	}
 }

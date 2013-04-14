@@ -130,7 +130,6 @@ public class URLResolver extends URLResolveProvider {
 		Map<String, String> namedVars = new HashMap<>();
 		
 		ArgumentBuilder argBuilder = viewMethod.getArgBuilder();
-		System.out.println(pattern);
 		if (argBuilder.getPathNamedArgs().size() > 0) {
 			for(PathNamedArgument arg : argBuilder.getPathNamedArgs()){
 				String argName = arg.getArgName();

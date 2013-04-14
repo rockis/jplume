@@ -1,16 +1,15 @@
 package jplume.conf;
 
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import jplume.converters.Converter;
 import jplume.view.ViewMethod;
 
 public class URLReverser {
-
-	private static final Pattern REVERSE_PATTERN = Pattern
-			.compile("\\(([^\\)]+)\\)");
 
 	private URLResolveProvider provider;
 
@@ -21,167 +20,158 @@ public class URLReverser {
 	public String reverse(String className, String methodName) {
 		return reverse(className, methodName, new String[0]);
 	}
+
 	public String reverse(final String className, final String methodName,
 			final String[] pathVars) {
-		String url = provider.visit("", new URLVisitor<String>() {
-			@Override
-			public String visit(Pattern pattern, String[] vars,
-					Map<String, String> namedVars, ViewMethod method,
-					boolean matched) {
-				if (method.getMethod().getDeclaringClass().getName()
-						.equals(className)
-						&& method.getMethod().getName().equals(methodName)) {
-					// ViewMethod.PathIndexedArgument[] args =
-					// method.getPathArguments();
-					// if (args.length != pathVars.length) {
-					// throw new IllegalArgumentException();
-					// }else if(args.length == 0) {
-					// return pattern.toString();
-					// }
-					// for (int i = 0; i < args.length; i++) {
-					// Class<?> argType = args[i].getType();
-					// if (!Converter.validate(argType, pathVars[i])) {
-					// throw new IllegalArgumentException();
-					// }
-					// }
-					// return reverse(pattern.toString(), pathVars);
+		LinkedList<String> vars = new LinkedList<String>(Arrays.asList(pathVars));
+		CloseBracket<LinkedList<String>> cb = new CloseBracket<LinkedList<String>>() {
+			public void process(MatchGroup g, LinkedList<String> vars) {
+				if (vars.size() == 0) {
+					throw new URLReserveException("less arguments");
 				}
-				return null;
+				String var = vars.peekFirst();
+				if (g.decline(var)) {
+					vars.pollFirst();
+				}
 			}
-		});
+		};
+		String url = reverse(className, methodName, cb, vars);
+		if (vars.size() > 0) 
+			throw new URLReserveException("");
 		return url;
 	}
-	
+
 	public String reverse(final String className, final String methodName,
 			final Map<String, String> namedVars) {
+		Map<String, String> vars = new HashMap<String, String>(namedVars);
+		CloseBracket<Map<String, String>> cb = new CloseBracket<Map<String, String>>() {
+			public void process(MatchGroup g, Map<String, String> vars) {
+				String name = g.name();
+				if (name == null) {
+					g.decline();
+				}else{
+					if (vars.size() == 0 || !vars.containsKey(name)) {
+						throw new URLReserveException("less arguments");
+					}
+					if (g.decline(vars.get(name))) {
+						vars.remove(name);
+					}
+				}
+			}
+		};
+		String url = reverse(className, methodName, cb, vars);
+		if (vars.size() > 0) 
+			throw new URLReserveException("more arguments");
+		return url;
+	}
+
+	private <T> String reverse(final String className, final String methodName,
+			final CloseBracket<T> cb, final T vars) {
 		String url = provider.visit("", new URLVisitor<String>() {
 			@Override
-			public String visit(Pattern pattern, String[] vars,
-					Map<String, String> namedVars, ViewMethod method,
+			public String visit(Pattern pattern, String[] no_use1,
+					Map<String, String> no_use2, ViewMethod method,
 					boolean matched) {
+				String localClassName = className;
+				if (localClassName.charAt(0) == '.') {
+					localClassName = Settings.get("DEFAULT_PACKAGE_PREFIX") + localClassName;
+				}
 				if (method.getMethod().getDeclaringClass().getName()
-						.equals(className)
+						.equals(localClassName)
 						&& method.getMethod().getName().equals(methodName)) {
-					// ViewMethod.PathIndexedArgument[] args =
-					// method.getPathArguments();
-					// if (args.length != pathVars.length) {
-					// throw new IllegalArgumentException();
-					// }else if(args.length == 0) {
-					// return pattern.toString();
-					// }
-					// for (int i = 0; i < args.length; i++) {
-					// Class<?> argType = args[i].getType();
-					// if (!Converter.validate(argType, pathVars[i])) {
-					// throw new IllegalArgumentException();
-					// }
-					// }
-					// return reverse(pattern.toString(), pathVars);
+					
+					return match(pattern.toString(), cb, vars);
 				}
 				return null;
 			}
 		});
-		return url;
+		int start = 0;
+		if (url.charAt(0) == '^') {
+			start = 1;
+		}
+		int end = url.length();
+		if (url.charAt(url.length() - 1) == '$') {
+			end--;
+		}
+		return url.substring(start, end);
 	}
 	
-	private String reverse(String pattern, String[] pathVars) {
-		StringBuffer sb = new StringBuffer();
-		Matcher m = REVERSE_PATTERN.matcher(pattern);
-		int i = 0;
-		while (m.find()) {
-			m.appendReplacement(sb, pathVars[i++]);
-		}
-		if (sb.charAt(0) == '^') {
-			return sb.substring(1);
-		}
-		return sb.toString();
-	}
-	
-	public void match(String pattern, Matcher matcher) {
+	public <T> String match(String pattern, CloseBracket<T> cb, T vars) {
 		MatchGroup top = new MatchGroup();
 		char[] cs = pattern.toCharArray();
-		char previous = 0;
 		
 		for(int i = 0; i < cs.length; i++) {
 			char c = cs[i];
-			if (previous != '\\') {
+			if (i == 0 || cs[i - 1] != '\\') {
 				if (c == '(') {
 					top = new MatchGroup(top);
-					previous = c;
 					continue;
 				}
 				if (c == ')') {
-					MatchGroup cu = top;
-//					matcher.match(cu);
+					cb.process(top, vars);
 					top = top.parent();
-					previous = c;
 					continue;
 				}
 			}
 			top.append(c);
-			previous = c;
 		}
-//		if (namedArgs.size() > 0) {
-//			//TODO
-//		}
-//		String url = top.toString();
-//		if (url.charAt(0) == '^') {
-//			url = url.substring(1);
-//		}
-//		if (url.charAt(url.length() -1) == '$') {
-//			url = url.substring(0, url.length() - 1);
-//		}
-//		return url;
+		return top.toString();
 	}
-	
-	private interface MMatcher {
-		
-		public void match(MatchGroup top);
-		
+
+	private interface CloseBracket<T> {
+		public void process(MatchGroup top, T vars);
 	}
 
 	private class MatchGroup {
-	
-	private StringBuffer pattern = new StringBuffer();
-	private MatchGroup parent = null;
-	
-	public MatchGroup(MatchGroup parent) {
-		this.parent = parent;
-	}
-	
-	public MatchGroup() {}
 
-	public void append(char c) {
-		this.pattern.append(c);
-	}
+		private final Pattern GROUPNAME_PATTERN = Pattern
+				.compile("\\(\\?<([a-zA-Z][a-zA-Z0-9]*)>");
+		private StringBuffer regex = new StringBuffer();
+		private MatchGroup parent = null;
 
-	public boolean decline(String var) {
-		Matcher m = Pattern.compile("(" + pattern.toString() + ")").matcher(var);
-		if (m.matches()) {
-			this.parent.pattern.append(m.group(1));
-			return true;
+		public MatchGroup(MatchGroup parent) {
+			this.parent = parent;
 		}
-		return false;
-	}
 
-	public boolean decline(String name, String var) {
-		Matcher m = Pattern.compile("(" + pattern.toString() + ")").matcher(var);
-		try {
-			if (m.matches() && m.group(name) != null) {
-				this.parent.pattern.append(m.group(name));
-				return true;
+		public MatchGroup() {
+		}
+
+		public void append(char c) {
+			this.regex.append(c);
+		}
+
+		public String name() {
+			Matcher m = GROUPNAME_PATTERN.matcher("(" + this.regex + ")");
+			while (m.find()) {
+				return m.group(1);
 			}
-		} catch (Exception e) {
-			System.out.println("(" + pattern.toString() + ")" + ",");
+			return null;
 		}
-		return false;
+
+		public boolean decline(String var) {
+			Pattern pattern = Pattern.compile("(" + regex.toString() + ")");
+			Matcher m = pattern.matcher(var);
+			if (m.matches()) {
+				this.parent.regex.append(m.group(1));
+				return true;
+			} else {
+				this.parent.regex.append(pattern.toString());
+			}
+			return false;
+		}
+
+		public boolean decline() {
+			Pattern pattern = Pattern.compile("(" + regex.toString() + ")");
+			this.parent.regex.append(pattern.toString());
+			return false;
+		}
+
+		public MatchGroup parent() {
+			return parent;
+		}
+
+		public String toString() {
+			return regex.toString();
+		}
 	}
-	
-	public MatchGroup parent() {
-		return parent;
-	}
-	
-	public String toString() {
-		return pattern.toString();
-	}
-}
 }
