@@ -25,9 +25,9 @@ public class URLResolverGroup extends URLResolveProvider{
 		return null;
 	}
 
-	public void setRegexPrefix(String regexPrefix) {
+	public void addRegexPrefix(String regexPrefix) {
 		for (URLResolveProvider pattern : urlpatterns) {
-			pattern.setRegexPrefix(regexPrefix);
+			pattern.addRegexPrefix(regexPrefix);
 		}
 	}
 

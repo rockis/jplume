@@ -14,6 +14,7 @@ import jplume.conf.URLVisitor;
 import jplume.http.Request;
 import jplume.http.Response;
 import jplume.template.TemplateEngine;
+import jplume.utils.ExceptionUtil;
 
 public class StandardErrorHandler implements ErrorHandler {
 	private TemplateEngine tplEngine;
@@ -43,10 +44,7 @@ public class StandardErrorHandler implements ErrorHandler {
 	public Response handle500(Request request, Throwable e) {
 		Map<String, Object> data = new HashMap<String, Object>();
 		
-		Throwable except = e;
-		while(except.getCause() != null) {
-			except = e.getCause();
-		}
+		Throwable except = ExceptionUtil.last(e);
 		StringWriter sw = new StringWriter();
 		except.printStackTrace(new PrintWriter(sw));
 		data.put("stacktrace", sw.toString());

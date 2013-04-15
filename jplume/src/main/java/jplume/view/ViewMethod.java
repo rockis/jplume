@@ -42,7 +42,6 @@ public class ViewMethod {
 		this.requireMethods = requireMethods;
 	}
 	
-
 	public static ViewMethod create(Pattern pattern, Method method) throws ViewException {
 		Class<?>[] argumentTypes = method.getParameterTypes();
 
@@ -81,21 +80,6 @@ public class ViewMethod {
 		if (anno != null) {
 			requireMethods = anno.methods();
 		}
-		
-//		// check
-//		int indexArgCount = 0;
-//		if (indexArgCount != argBuilder.pathIndexedArgs.size()) {
-//			throw new ViewException("Indexed path argument number not match:" + indexArgCount + ":" + argBuilder.pathIndexedArgs.size());
-//		}
-//		String[] namedArgs = new String[0];
-//		if (namedArgs.length != argBuilder.pathNamedArgs.size()) {
-//			throw new ViewException("Named path argument number not match:" + namedArgs.length + ":" + argBuilder.pathNamedArgs.size());
-//		}
-//		for (PathNamedArgument arg : argBuilder.pathNamedArgs) {
-//			if (Arrays.binarySearch(namedArgs, arg.argName) < 0){
-//				throw new ViewException("Named path argument '" + arg.argName + "'number not found within pattern '" + pattern);
-//			}
-//		}
 		
 		return new ViewMethod(pattern, method, argBuilder, requireMethods);
 	}

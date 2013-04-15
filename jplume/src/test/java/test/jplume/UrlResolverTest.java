@@ -17,16 +17,26 @@ import static org.junit.Assert.*;
 
 public class UrlResolverTest {
 
+	URLResolveProvider urp = null;
 
 	@Before
 	public void setUp() throws Exception {
 		Settings.initalize("jplume-test.json");
+		urp =  URLResolveProvider.create(Settings.get("ROOT_URLCONF"));
+		
+//		URLResolveProvider provider = URLResolveProvider.create(Settings.get("ROOT_URLCONF"));
+//		provider.visit("", new URLVisitor<String>() {
+//			public String visit(Pattern pattern, String[] indexedVars, Map<String, String> namedVars, ViewMethod method, boolean matched) {
+//				System.out.println(pattern.toString());
+//				return null;
+//			}
+//		});
 	}
 
 	
 	@Test
 	public void test() {
-		URLResolveProvider urp = URLResolveProvider.create(Settings.get("ROOT_URLCONF"));
+		
 		// test _("^$", "index"),
 		ViewMethod result = urp.visit("", new URLVisitor<ViewMethod>() {
 			@Override
@@ -133,9 +143,36 @@ public class UrlResolverTest {
 			}
 		});
 		assertEquals(result.getMethod().getName(), "param");
+		
+		// test _("^/p", "test.jplume.urlresolver.TestClassPrefixAction")
+		result = urp.visit("/p/test/prefix", new URLVisitor<ViewMethod>() {
+			@Override
+			public ViewMethod visit(Pattern pattern, String[] pathVars, Map<String, String> namedVars,
+					ViewMethod method, boolean matched) {
+				if (matched) {
+					return method;
+				}
+				return null;
+			}
+		});
+		assertEquals(result.getMethod().getName(), "prefix");
+		
+		// test include(".TestClassIncludeAction")
+		result = urp.visit("/includeclass/prefix", new URLVisitor<ViewMethod>() {
+			@Override
+			public ViewMethod visit(Pattern pattern, String[] pathVars, Map<String, String> namedVars,
+					ViewMethod method, boolean matched) {
+				if (matched) {
+					return method;
+				}
+				return null;
+			}
+		});
+		assertEquals(result.getMethod().getName(), "prefix2");
+		
 	}
 
-	@Test
+	//@Test
 	public void testReverse() {
 		URLResolveProvider urp = URLResolveProvider.create("test/jplume/urlresolver/test.urls");
 		URLReverser ur = new URLReverser(urp);

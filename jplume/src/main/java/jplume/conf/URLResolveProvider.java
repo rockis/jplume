@@ -6,7 +6,6 @@ import java.lang.reflect.Method;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Pattern;
 
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
@@ -14,15 +13,17 @@ import javax.script.ScriptException;
 
 import jplume.core.RequestDispatcher;
 import jplume.utils.ClassUtil;
+import jplume.utils.ExceptionUtil;
+import jplume.view.annotations.Prefix;
 import jplume.view.annotations.View;
 
 public abstract class URLResolveProvider {
 	
 	abstract public <T> T visit(String path, URLVisitor<T> visitor) throws IllegalURLPattern;
 	
-	abstract void setRegexPrefix(String prefix);
+	abstract void addRegexPrefix(String prefix);
 	
-	public static URLResolveProvider create(String urlconf) {
+	public static URLResolverGroup create(String urlconf) {
 		if (urlconf.endsWith(".urls")) { // urlconf is xxx.urls
 			URL url = RequestDispatcher.class.getClassLoader().getResource(
 					urlconf);
@@ -43,7 +44,7 @@ public abstract class URLResolveProvider {
 		}
 	}
 
-	public static URLResolveProvider create(URL urlconf) {
+	public static URLResolverGroup create(URL urlconf) {
 		assert urlconf != null;
 
 		ScriptEngineManager sem = new ScriptEngineManager();
@@ -55,31 +56,37 @@ public abstract class URLResolveProvider {
 			jsEngine.eval("include = URLResolveProvider.include;");
 
 			jsEngine.eval(new InputStreamReader(urlconf.openStream()));
-			return (URLResolveProvider) jsEngine.get("urlpatterns");
+			return (URLResolverGroup) jsEngine.get("urlpatterns");
 
 		} catch (ScriptException e) {
 			throw new IllegalURLPattern("Urlconf '"
-					+ urlconf.toString() + "' has an error", e);
+					+ urlconf.toString() + "' has an error", ExceptionUtil.last(e));
 		} catch (IOException e) {
 			throw new IllegalURLPattern("Cannot read urlconf '"
-					+ urlconf.toString() + "'", e);
+					+ urlconf.toString() + "'", ExceptionUtil.last(e));
 		}
 	}
 
-	public static URLResolveProvider create(Class<?> actionClass) {
+	public static URLResolverGroup create(Class<?> actionClass) {
+		Prefix prefix = actionClass.getAnnotation(Prefix.class);
+		
 		Method[] views = actionClass.getMethods();
 		List<URLResolver> patterns = new ArrayList<URLResolver>();
 		for (Method view : views) {
 			View anno = view.getAnnotation(View.class);
-			if (anno != null && !anno.pattern().isEmpty()) {
-				patterns.add(new URLResolver(view));
+			if (anno != null && !anno.regex().isEmpty()) {
+				URLResolver ur = new URLResolver(view);
+				if (prefix != null) {
+					ur.addRegexPrefix(prefix.regex());
+				}
+				patterns.add(ur);
 			}
 		}
 		return new URLResolverGroup(patterns.toArray(new URLResolver[0]));
 	}
 	
 	
-	public static URLResolveProvider patterns(String actionClassName,
+	public static URLResolverGroup patterns(String actionClassName,
 			URLResolveProvider... patterns) {
 		Class<?> actionClass;
 		try {
@@ -95,20 +102,28 @@ public abstract class URLResolveProvider {
 		}
 	}
 
-	public static URLResolveProvider pattern(Pattern regex, String callback) {
-		return new URLResolver(regex.toString(), callback);
-	}
 	
-	public static URLResolveProvider pattern(String regex, String callback) {
-		return new URLResolver(regex, callback);
+	public static URLResolveProvider pattern(String regex, String classMethodName) {
+		return new URLResolver(regex, classMethodName);
 	}
 
+	/**
+	 * 
+	 * @param regex
+	 * @param patterns
+	 * @return
+	 */
 	public static URLResolveProvider pattern(String regex, URLResolveProvider patterns) {
-		patterns.setRegexPrefix(regex);
+		patterns.addRegexPrefix(regex);
 		return patterns;
 	}
 
-	public static URLResolveProvider include(String urlconf) {
+	/**
+	 * eg. _("^/include", include("test/jplume/urlresolver/include.urls"))
+	 * @param urlconf
+	 * @return
+	 */
+	public static URLResolverGroup include(String urlconf) {
 		return create(urlconf);
 	}
 }

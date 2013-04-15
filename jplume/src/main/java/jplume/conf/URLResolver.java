@@ -63,14 +63,14 @@ public class URLResolver extends URLResolveProvider {
 	public URLResolver(Method view) {
 		View anno = view.getAnnotation(View.class);
 		assert view.getAnnotation(View.class) != null;
-		this.regex = anno.pattern();
+		this.regex = anno.regex();
 		this.viewMethod = ViewMethod.create(this.pattern, view);
 	}
 
-	public void setRegexPrefix(String regexPrefix) {
+	public void addRegexPrefix(String regexPrefix) {
 		if (this.regex.charAt(0) == '^') {
-			this.pattern = Pattern.compile(regexPrefix
-					+ this.regex.substring(1));
+			this.regex = regexPrefix + this.regex.substring(1);
+			this.pattern = Pattern.compile(this.regex);
 		} else {
 			this.pattern = Pattern.compile(regexPrefix + this.regex);
 		}

@@ -36,12 +36,12 @@ public class IndexAction {
 		return HttpResponse.ok("ok");
 	}
 	
-	@View(pattern = "^/dynamic/([\\d]+)$")
+	@View(regex = "^/dynamic/([\\d]+)$")
 	public String dynamic(@PathVar int id) {
 		return id + "<a href='/d/dynamic/123/test'>go</a>";
 	}
 	
-	@View(pattern = "^/dynamic/([\\d]+)/([\\w]+)$")
+	@View(regex = "^/dynamic/([\\d]+)/([\\w]+)$")
 	public static Response dynamic(@PathVar int id, @PathVar String name) {
 		return TemplateEngine.get().render("helloworld.html");
 	}
