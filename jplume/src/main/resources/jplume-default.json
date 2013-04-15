@@ -21,8 +21,8 @@ INTERCEPTORS = [
 
 ERROR_HANDLER = "jplume.view.StandardErrorHandler"
 
-TEMPLATE_ENGINE = {
-    'default' : 'freemarker',
+DEFAULT_TEMPLATE_ENGINE = "freemarker"
+TEMPLATE_ENGINES = {
     'freemarker' : {
        'default_encoding' : DEFAULT_ENCODING,
        'number_format' : '#',
@@ -30,8 +30,6 @@ TEMPLATE_ENGINE = {
        'time_format' : 'HH:mm:ss',
        'datetime_format' : 'yyyy-MM-dd HH:mm:ss',
        'locale' : LOCALE
-    },
-    'functions' : [
-        'jplume.template.Functions'
-    ]
+    }
 }
+TEMPLATE_FUNCTIONS = []

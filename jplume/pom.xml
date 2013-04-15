@@ -41,7 +41,6 @@
 		<outputDirectory>
 			target/jplume/WEB-INF/classes
 		</outputDirectory>
-		<!-- 
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -51,6 +50,7 @@
 					<target>1.7</target>
 				</configuration>
 			</plugin>
+            <!--
 			<plugin>
 				<groupId>org.mortbay.jetty</groupId>
 				<artifactId>maven-jetty-plugin</artifactId>
@@ -88,8 +88,8 @@
 					</execution>
 				</executions>
 			</plugin>
+             -->
 		</plugins>
-		 -->
 	</build>
 	<packaging>jar</packaging>
 </project>

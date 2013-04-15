@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -17,8 +19,9 @@ import jplume.conf.Settings;
 import jplume.core.ActionContext;
 import jplume.http.HttpResponse;
 import jplume.http.Response;
+import jplume.template.BuiltinFunctions;
 import jplume.template.TemplateEngine;
-import jplume.template.annotations.TemplateFunction;
+import jplume.template.annotations.TemplateFunctionObject;
 import freemarker.cache.FileTemplateLoader;
 import freemarker.cache.TemplateLoader;
 import freemarker.cache.WebappTemplateLoader;
@@ -27,6 +30,7 @@ import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
 import freemarker.template.TemplateExceptionHandler;
+import freemarker.template.TemplateModelException;
 
 public class FreemarkerEngine extends TemplateEngine {
 
@@ -101,53 +105,64 @@ public class FreemarkerEngine extends TemplateEngine {
 		c.setTemplateLoader(getTemplateLoader(servletContext));
 		
 		c.setTemplateExceptionHandler(TemplateExceptionHandler.HTML_DEBUG_HANDLER);
-		
 		BeansWrapper wrapper = new BeansWrapper();
        wrapper.setExposureLevel(BeansWrapper.EXPOSE_ALL);
+      
+       c.setObjectWrapper(wrapper);
        
        c.setSharedVariable("base", ActionContext.getContext().getContextPath());;
 		c.setSharedVariable("settings", new StaticClassModel(Settings.class, wrapper));
 		c.setSharedVariable("request", wrapper.wrap(new RequestModel()));
 		
-		Map<String, Object> engineConfig = Settings.getMap("TEMPLATE_ENGINE");
+		Map<String, Object> engineConfig = Settings.getMap("TEMPLATE_ENGINES");
 		@SuppressWarnings("unchecked")
 		Map<String, String> properties = (Map<String, String>)engineConfig.get("freemarker");
 		for(Map.Entry<String, String> entry : properties.entrySet()) {
 			c.setSetting(entry.getKey(), entry.getValue());
 		}
-		createBuiltinFunctions(engineConfig, c);
+		createFunctions(engineConfig, c, wrapper);
 		return c;
 	}
 	
-	protected void createBuiltinFunctions(Map<String, Object> engineConfig, Configuration config) {
-		@SuppressWarnings("unchecked")
-		List<String> funcs = (List<String>)engineConfig.get("functions");
-		for(String className : funcs) {
-			createBuiltinFunctions(config, className);
+	protected void createFunctions(Map<String, Object> engineConfig, Configuration config, BeansWrapper wrapper) {
+		createFunctions(config, BuiltinFunctions.class, wrapper);
+	}
+	
+	protected void createFunctions(Configuration config, String className, BeansWrapper wrapper) {
+		try {
+			Class<?> funcClass = Class.forName(className);
+			createFunctions(config, funcClass, wrapper);
+		} catch (ClassNotFoundException e) {
+			logger.error(
+					"Error while create builtin functions",
+					e);
 		}
 	}
 	
-	protected void createBuiltinFunctions(Configuration config, String className) {
+	protected void createFunctions(Configuration config, Class<?> funcClass, BeansWrapper wrapper) {
 		try {
-			Class<?> funcClass = Class.forName(className);
+			TemplateFunctionObject anno = funcClass.getAnnotation(TemplateFunctionObject.class);
 			Object obj = funcClass.newInstance();
-			for(Method m : funcClass.getMethods()) {
-				TemplateFunction anno = m.getAnnotation(TemplateFunction.class);
-				if (anno == null) continue;
-				String name = m.getName();
-				if (!anno.name().isEmpty()) {
-					name = anno.name();
+			if (anno == null || anno.namespace().isEmpty()) {
+				Map<String, List<Method>> funcs = new HashMap<>();
+				for(Method m : funcClass.getMethods()) {
+					if (!funcs.containsKey(m.getName())) {
+						funcs.put(m.getName(), new ArrayList<Method>());
+					}
+					funcs.get(m.getName()).add(m);
 				}
-				config.setSharedVariable(name, new FunctionWrapper(obj, m));
+				for (Map.Entry<String, List<Method>> e : funcs.entrySet()) {
+					config.setSharedVariable(e.getKey(), new FunctionWrapper(obj, e.getKey(), e.getValue().toArray(new Method[0]), wrapper));
+				}
+			}else{
+				config.setSharedVariable(anno.namespace(), wrapper.wrap(obj));
 			}
-			
 		} catch (InstantiationException | IllegalAccessException
-				| ClassNotFoundException e) {
+				 | TemplateModelException e) {
 			logger.error(
-					"Error while create builtin function",
+					"Error while create builtin functions",
 					e);
 		}
-		
 	}
 
 	protected void loadSettings(ServletContext servletContext,

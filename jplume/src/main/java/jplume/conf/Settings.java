@@ -89,11 +89,7 @@ public class Settings {
 	public static String getDefaultContentType() {
 		return get("DEFAULT_CONTENT_TYPE", "text/html");
 	}
-	
-	public static String templateEngineClass() {
-		return get("TEMPLATE_ENGINE", "jplume.template.freemarker.FreemarkerEngine");
-	}
-	
+
 	public static boolean useEtags() {
 		return getBoolean("USE_ETAGS", false);
 	}

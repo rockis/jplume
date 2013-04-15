@@ -27,7 +27,7 @@ public class URLReverser {
 		CloseBracket<LinkedList<String>> cb = new CloseBracket<LinkedList<String>>() {
 			public void process(MatchGroup g, LinkedList<String> vars) {
 				if (vars.size() == 0) {
-					throw new URLReserveException("less arguments");
+					throw new URLReverseException("less arguments");
 				}
 				String var = vars.peekFirst();
 				if (g.decline(var)) {
@@ -37,7 +37,7 @@ public class URLReverser {
 		};
 		String url = reverse(className, methodName, cb, vars);
 		if (vars.size() > 0) 
-			throw new URLReserveException("");
+			throw new URLReverseException("");
 		return url;
 	}
 
@@ -51,7 +51,7 @@ public class URLReverser {
 					g.decline();
 				}else{
 					if (vars.size() == 0 || !vars.containsKey(name)) {
-						throw new URLReserveException("less arguments");
+						throw new URLReverseException("less arguments");
 					}
 					if (g.decline(vars.get(name))) {
 						vars.remove(name);
@@ -61,7 +61,7 @@ public class URLReverser {
 		};
 		String url = reverse(className, methodName, cb, vars);
 		if (vars.size() > 0) 
-			throw new URLReserveException("more arguments");
+			throw new URLReverseException("more arguments");
 		return url;
 	}
 
@@ -85,6 +85,12 @@ public class URLReverser {
 				return null;
 			}
 		});
+		if (url == null) {
+			throw new URLReverseException(className + ":" + methodName);
+		}
+		if (url.length() == 0) {
+			return url;
+		}
 		int start = 0;
 		if (url.charAt(0) == '^') {
 			start = 1;
@@ -122,9 +128,9 @@ public class URLReverser {
 		public void process(MatchGroup top, T vars);
 	}
 
-	private class MatchGroup {
+	private static class MatchGroup {
 
-		private final Pattern GROUPNAME_PATTERN = Pattern
+		private static final Pattern GROUPNAME_PATTERN = Pattern
 				.compile("\\(\\?<([a-zA-Z][a-zA-Z0-9]*)>");
 		private StringBuffer regex = new StringBuffer();
 		private MatchGroup parent = null;

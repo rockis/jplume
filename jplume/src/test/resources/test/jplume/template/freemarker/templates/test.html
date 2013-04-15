@@ -1,0 +1,8 @@
+${base}
+${date()?string('yyyy-MM-dd')}
+${date(3600 * 24 * 1000)?string('yyyy-MM-dd')}
+
+
+[${base}${url('.TestSimpleAction:index')}]
+[${base}${urli('.TestSimpleAction:indexedVars', ["aa", "11"])}]
+[${base}${urln('.TestSimpleAction:namedVars', { 'arg1' : '111', 'arg2' : '222'} )}]

@@ -25,8 +25,7 @@ public abstract class TemplateEngine {
 	public static TemplateEngine get() {
 		synchronized (lock) {
 			if (defaultEngine == null) {
-				Map<String, Object> m = Settings.getMap("TEMPLATE_ENGINE");
-				defaultEngine = (String)m.get("default");
+				defaultEngine = Settings.get("DEFAULT_TEMPLATE_ENGINE");
 			}
 		}
 		return get(defaultEngine);

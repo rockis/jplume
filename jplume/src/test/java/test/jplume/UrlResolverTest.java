@@ -1,12 +1,11 @@
 package test.jplume;
 
-import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
 
 import jplume.conf.Settings;
-import jplume.conf.URLReserveException;
+import jplume.conf.URLReverseException;
 import jplume.conf.URLResolveProvider;
 import jplume.conf.URLReverser;
 import jplume.conf.URLVisitor;
@@ -27,7 +26,7 @@ public class UrlResolverTest {
 	
 	@Test
 	public void test() {
-		URLResolveProvider urp = URLResolveProvider.create("test/jplume/urlresolver/test.urls");
+		URLResolveProvider urp = URLResolveProvider.create(Settings.get("ROOT_URLCONF"));
 		// test _("^$", "index"),
 		ViewMethod result = urp.visit("", new URLVisitor<ViewMethod>() {
 			@Override
@@ -155,7 +154,7 @@ public class UrlResolverTest {
 		try {
 			url = ur.reverse(".TestSimpleAction", "namedVars", args);
 			assertTrue(false);
-		} catch (URLReserveException e) {
+		} catch (URLReverseException e) {
 			assertTrue(true);
 		}
 		args.clear();
@@ -163,7 +162,7 @@ public class UrlResolverTest {
 		try {
 			url = ur.reverse(".TestSimpleAction", "namedVars", args);
 			assertTrue(false);
-		} catch (URLReserveException e) {
+		} catch (URLReverseException e) {
 			assertTrue(true);
 		}
 	}
