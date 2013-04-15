@@ -2,6 +2,7 @@ package jplume.view;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -115,16 +116,6 @@ public class ViewMethod {
 		return argBuilder;
 	}
 	
-//	public PathIndexedArgument[] getPathArguments() {
-//		TreeMap<Integer, PathIndexedArgument> args = new TreeMap<>();
-//		for (Argument argument : arguments.values()) {
-//			if (argument instanceof PathIndexedArgument) {
-//				args.put(((PathIndexedArgument)argument).pathIndex, ((PathIndexedArgument)argument));
-//			}
-//		}
-//		return args.values().toArray(new PathIndexedArgument[0]);
-//	}
-
 	public Response handle(Request request, String[] indexedVars, Map<String, String> namedVars) {
 		try {
 			if (requireMethods.length > 0
@@ -132,7 +123,10 @@ public class ViewMethod {
 				return HttpResponse.forbidden();
 			}
 			Class<?> actionClass = this.method.getDeclaringClass();
-			Object action = actionClass.newInstance();
+			Object action = null;
+			if ((method.getModifiers() & Modifier.STATIC) == 0) { // method is static method
+				action = actionClass.newInstance();
+			}
 			
 			Object[] args = argBuilder.build(request, indexedVars, namedVars);
 			

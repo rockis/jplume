@@ -23,8 +23,8 @@ public class SettingsTest {
 		assertEquals(Settings.get("DEFAULT_CONTENT_TYPE"), "text/html");
 		List<String> inters = Settings.getList("INTERCEPTORS");
 		assertEquals(inters.size(), 1);
-		Map<String, Object> m = Settings.getMap("TEMPLATE_ENGINE");
-		assertEquals(m.get("default"), "freemarker");
+		assertEquals(Settings.get("DEFAULT_TEMPLATE_ENGINE"), "freemarker");
+		Map<String, Object> m = Settings.getMap("TEMPLATE_ENGINES");
 		@SuppressWarnings("unchecked")
 		Map<String, String> fm = (Map)m.get("freemarker");
 		assertEquals(fm.get("default_encoding"), "utf-8");

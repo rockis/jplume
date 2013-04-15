@@ -13,6 +13,7 @@ import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 
 import jplume.core.RequestDispatcher;
+import jplume.utils.ClassUtil;
 import jplume.view.annotations.View;
 
 public abstract class URLResolveProvider {
@@ -33,7 +34,7 @@ public abstract class URLResolveProvider {
 			return create(url);
 		} else { // urlconf is class name
 			try {
-				Class<?> actionClass = Class.forName(urlconf);
+				Class<?> actionClass = ClassUtil.forName(urlconf);
 				return create(actionClass);
 			} catch (ClassNotFoundException e) {
 				throw new IllegalURLPattern("Cannot read urlconf '"

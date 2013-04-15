@@ -1,5 +1,5 @@
 
 urlpatterns = patterns("", 
-	_("^$", "test.jplume.urlresolver.TestIncludeAction.includeme"),
-	_("^/param/(\\d+)/([\\w]+)/([\\d]+)$", "test.jplume.urlresolver.TestIncludeAction.param")
+	_("^$", "test.jplume.urlresolver.TestIncludeAction:includeme"),
+	_("^/param/(\\d+)/([\\w]+)/([\\d]+)$", "test.jplume.urlresolver.TestIncludeAction:param")
 )

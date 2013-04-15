@@ -3,7 +3,7 @@ package jplume.template.freemarker;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
-import jplume.utils.StringUtils;
+import jplume.utils.StringUtil;
 
 import freemarker.ext.beans.BeansWrapper;
 import freemarker.template.TemplateHashModel;
@@ -54,13 +54,13 @@ public class StaticClassModel  implements TemplateHashModel {
             throws TemplateModelException {
         Method method = null;
         try {
-            String methodName = "get" + StringUtils.capitalize(key);
+            String methodName = "get" + StringUtil.capitalize(key);
             method = clazz.getDeclaredMethod(methodName, new Class[0]);
         } catch (Exception e) {
         }
         if (method == null) {
             try {
-                String methodName = "is" + StringUtils.capitalize(key);
+                String methodName = "is" + StringUtil.capitalize(key);
                 method = clazz.getDeclaredMethod(methodName, new Class[0]);
             } catch (Exception e) {
             }

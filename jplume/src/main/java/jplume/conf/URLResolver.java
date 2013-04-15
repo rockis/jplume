@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import jplume.utils.ClassUtil;
 import jplume.view.ViewMethod;
 import jplume.view.ViewMethod.ArgumentBuilder;
 import jplume.view.ViewMethod.PathNamedArgument;
@@ -35,19 +36,19 @@ public class URLResolver extends URLResolveProvider {
 	public URLResolver(String regex, String callback) {
 		this.regex = regex;
 		this.pattern = Pattern.compile(regex);
-		int indexOfLastDot = callback.lastIndexOf('.');
-		if (indexOfLastDot > 0) { // callback is classname.methodname
-			this.viewMethodName = callback.substring(indexOfLastDot + 1);
-			int indexOfLastComma = this.viewMethodName.lastIndexOf(':');
-			if (indexOfLastComma > 0) {
+		int indexOfLastColon = callback.lastIndexOf(':');
+		if (indexOfLastColon > 0) { // callback is classname.methodname
+			this.viewMethodName = callback.substring(indexOfLastColon + 1);
+			int indexOfLastExcl = this.viewMethodName.lastIndexOf('!');
+			if (indexOfLastExcl > 0) {
 				this.methodAlias = this.viewMethodName
-						.substring(indexOfLastComma + 1);
+						.substring(indexOfLastExcl + 1);
 				this.viewMethodName = this.viewMethodName.substring(0,
-						indexOfLastComma);
+						indexOfLastExcl);
 			}
-			String className = callback.substring(0, indexOfLastDot);
+			String className = callback.substring(0, indexOfLastColon);
 			try {
-				Class<?> actionClass = Class.forName(className);
+				Class<?> actionClass = ClassUtil.forName(className);
 				this.setActionClass(actionClass);
 			} catch (ClassNotFoundException e) {
 				throw new IllegalURLPattern("Class '" + className

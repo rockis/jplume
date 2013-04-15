@@ -16,6 +16,7 @@ import jplume.conf.URLVisitor;
 import jplume.http.HttpResponse;
 import jplume.http.Request;
 import jplume.http.Response;
+import jplume.utils.ClassUtil;
 import jplume.view.ViewMethod;
 
 public class RequestDispatcher {
@@ -33,7 +34,7 @@ public class RequestDispatcher {
 		List<String> interClasses = Settings.getList("INTERCEPTORS");
 		for (String className : interClasses) {
 			try {
-				Class<?> c = Class.forName(className);
+				Class<?> c = ClassUtil.forName(className);
 				if (!Interceptor.class.isAssignableFrom(c)){
 					logger.error("Class " + className + " is not implements " + Interceptor.class);
 				}

@@ -4,7 +4,7 @@ urlpatterns = patterns("test.jplume.urlresolver.TestSimpleAction",
 	_("^/indexed/([\\w]+)/([\\d]+)$", "indexedVars"),
     _("^/named/(?<arg1>[\\w]+)/(?<arg2>[\\d]+)$", "namedVars"),
     _("^/indexed_named/(?<arg1>([\\w]+))/(?<arg2>[\\d]+)$", "indexedNamedVars"),
-    _("^/helloworld$", "test.jplume.urlresolver.TestClassAction.helloworld"),
-    _("^/helloworld/([\\w]+)$", "test.jplume.urlresolver.TestClassAction.helloworld:hello"),
+    _("^/helloworld$", "test.jplume.urlresolver.TestClassAction:helloworld"),
+    _("^/helloworld/([\\w]+)$", "test.jplume.urlresolver.TestClassAction:helloworld!hello"),
     _("^/include", include("test/jplume/urlresolver/include.urls"))
 )

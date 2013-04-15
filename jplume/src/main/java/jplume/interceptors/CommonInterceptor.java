@@ -9,6 +9,7 @@ import jplume.conf.Settings;
 import jplume.http.Http500Response;
 import jplume.http.Request;
 import jplume.http.Response;
+import jplume.utils.ClassUtil;
 import jplume.view.ErrorHandler;
 
 public class CommonInterceptor extends InterceptorAdapter {
@@ -29,7 +30,7 @@ public class CommonInterceptor extends InterceptorAdapter {
 		String errorHandlerClass = Settings.get("ERROR_HANDLER");
 		
 		try {
-			errorHandler = (ErrorHandler) Class.forName(errorHandlerClass).newInstance();
+			errorHandler = (ErrorHandler) ClassUtil.forName(errorHandlerClass).newInstance();
 		} catch (Exception e) {
 			logger.error("Cannot create errorhandler ", e);
 		} 

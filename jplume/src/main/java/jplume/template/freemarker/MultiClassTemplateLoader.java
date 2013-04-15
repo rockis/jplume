@@ -6,6 +6,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import jplume.utils.ClassUtil;
+
 import freemarker.cache.ClassTemplateLoader;
 import freemarker.cache.TemplateLoader;
 
@@ -35,7 +37,7 @@ public class MultiClassTemplateLoader implements TemplateLoader {
 			TemplateLoader loader = loaders.get(className);
 			if (loader == null) { 
 				try {
-					Class<?> clazz = Class.forName(className);
+					Class<?> clazz = ClassUtil.forName(className);
 					loader = new ClassTemplateLoader(clazz, path);
 					loaders.put(className, loader);
 				} catch (ClassNotFoundException e) {

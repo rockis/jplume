@@ -1,6 +1,6 @@
 package jplume.utils;
 
-public class StringUtils {
+public class StringUtil {
 
 	public static String capitalize(String str) {
 		if (str == null || str.length() == 0) {

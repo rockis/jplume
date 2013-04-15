@@ -22,6 +22,7 @@ import jplume.http.Response;
 import jplume.template.BuiltinFunctions;
 import jplume.template.TemplateEngine;
 import jplume.template.annotations.TemplateFunctionObject;
+import jplume.utils.ClassUtil;
 import freemarker.cache.FileTemplateLoader;
 import freemarker.cache.TemplateLoader;
 import freemarker.cache.WebappTemplateLoader;
@@ -130,7 +131,7 @@ public class FreemarkerEngine extends TemplateEngine {
 	
 	protected void createFunctions(Configuration config, String className, BeansWrapper wrapper) {
 		try {
-			Class<?> funcClass = Class.forName(className);
+			Class<?> funcClass = ClassUtil.forName(className);
 			createFunctions(config, funcClass, wrapper);
 		} catch (ClassNotFoundException e) {
 			logger.error(

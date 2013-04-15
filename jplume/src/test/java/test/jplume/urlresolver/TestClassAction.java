@@ -5,12 +5,12 @@ import jplume.view.annotations.View;
 
 public class TestClassAction {
 
-	public String helloworld() {
+	public static String helloworld() {
 		return "hello world";
 	}
 	
 	@View(alias="hello")
-	public String helloworld(@PathVar String arg) {
+	public static String helloworld(@PathVar String arg) {
 		return "hello " + arg;
 	}
 	

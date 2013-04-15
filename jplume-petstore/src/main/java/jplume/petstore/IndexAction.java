@@ -1,8 +1,6 @@
 package jplume.petstore;
 
 import java.io.File;
-import java.util.HashMap;
-import java.util.Map;
 
 import jplume.conf.Settings;
 import jplume.core.ActionContext;
@@ -44,7 +42,7 @@ public class IndexAction {
 	}
 	
 	@View(pattern = "^/dynamic/([\\d]+)/([\\w]+)$")
-	public Response dynamic(@PathVar int id, @PathVar String name) {
+	public static Response dynamic(@PathVar int id, @PathVar String name) {
 		return TemplateEngine.get().render("helloworld.html");
 	}
 	
