@@ -17,6 +17,7 @@ import jplume.template.TemplateEngine;
 import jplume.utils.ExceptionUtil;
 
 public class StandardErrorHandler implements ErrorHandler {
+	
 	private TemplateEngine tplEngine;
 	
 	public StandardErrorHandler() {

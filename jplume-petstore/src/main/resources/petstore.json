@@ -6,7 +6,7 @@ DEBUG = true
 
 ROOT_URLCONF = "petstore.urls"
 
-MEDIA_ROOT = "/media/ads-m/workspace/4.5.88.4/04_Code/web/www"
+MEDIA_ROOT = "/www"
 	
 USE_ETAGS = true
 
@@ -22,20 +22,3 @@ LOCALE = "zh_CN"
 INTERCEPTORS = [
     'jplume.interceptors.CommonInterceptor'
 ]
-
-ERROR_HANDLER = "jplume.view.StandardErrorHandler"
-
-TEMPLATE_ENGINE = {
-    'default' : 'freemarker',
-    'freemarker' : {
-       'default_encoding' : DEFAULT_ENCODING,
-       'number_format' : '#',
-       'date_format' : 'yyyy-MM-dd',
-       'time_format' : 'HH:mm:ss',
-       'datetime_format' : 'yyyy-MM-dd HH:mm:ss',
-       'locale' : LOCALE
-    },
-    'functions' : [
-        'jplume.template.Functions'
-    ]
-}

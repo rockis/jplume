@@ -91,7 +91,7 @@ public abstract class URLResolveProvider {
 		Class<?> actionClass;
 		try {
 			if (actionClassName.length() > 0) {
-				actionClass = Class.forName(actionClassName);
+				actionClass = ClassUtil.forName(actionClassName);
 				return new URLResolverGroup(actionClass, patterns);
 			} else {
 				return new URLResolverGroup(patterns);

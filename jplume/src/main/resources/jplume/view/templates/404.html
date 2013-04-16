@@ -44,7 +44,7 @@
       </p>
       <ol>
          <#list patterns as p>
-         	<li>${ (p_index + 1)?string?left_pad(3) } ${p}</li>
+         	<li>${p?html}</li>
          </#list>
       </ol>
       <p>The current URL, <code>${request.requestURL}</code>, didn't match any of these.</p>
