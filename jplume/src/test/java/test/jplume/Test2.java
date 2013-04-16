@@ -1,15 +1,19 @@
 package test.jplume;
 
+import javax.script.ScriptEngine;
+import javax.script.ScriptEngineManager;
+import javax.script.ScriptException;
+
 public class Test2 {
 
 	public static void main(String[] args) {
-		Integer[] aa = new Integer[] { 99 };
-		Class c = aa.getClass();
-		System.out.println(c.getComponentType());
-		Class[] cs = c.getClasses();
-		for (Class class1 : cs) {
-			System.out.println(class1);
+		ScriptEngineManager sem = new ScriptEngineManager();
+		ScriptEngine jsEngine = sem.getEngineByName("js");
+		try {
+			jsEngine.eval("a=1; \n a = b;");
+		} catch (ScriptException e) {
+			System.out.println(e.getLineNumber());
+			e.printStackTrace();
 		}
-		
 	}
 }

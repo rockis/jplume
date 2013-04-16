@@ -11,6 +11,9 @@ import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import jplume.core.RequestDispatcher;
 import jplume.utils.ClassUtil;
 import jplume.utils.ExceptionUtil;
@@ -18,6 +21,8 @@ import jplume.view.annotations.Prefix;
 import jplume.view.annotations.View;
 
 public abstract class URLResolveProvider {
+	
+	private static Logger logger = LoggerFactory.getLogger("url");
 	
 	abstract public <T> T visit(String path, URLVisitor<T> visitor) throws IllegalURLPattern;
 	
@@ -59,8 +64,13 @@ public abstract class URLResolveProvider {
 			return (URLResolverGroup) jsEngine.get("urlpatterns");
 
 		} catch (ScriptException e) {
+			try {
+				ExceptionUtil.logScriptException(logger, e, urlconf);
+			} catch (IOException e1) {
+			}
 			throw new IllegalURLPattern("Urlconf '"
-					+ urlconf.toString() + "' has an error", ExceptionUtil.last(e));
+					+ urlconf.toString() + "' has an error in line " + e.getLineNumber(), e);
+			
 		} catch (IOException e) {
 			throw new IllegalURLPattern("Cannot read urlconf '"
 					+ urlconf.toString() + "'", ExceptionUtil.last(e));

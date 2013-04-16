@@ -1,14 +1,19 @@
 package jplume.conf;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
+
+import jplume.utils.ExceptionUtil;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,16 +38,22 @@ public class Settings {
 	}
 	
 	private static void readConfig(String configFile) throws InvalidConfigException {
+		URL config = null;
 		try {
-			URL config = Settings.class.getClassLoader().getResource(configFile);
+			config = Settings.class.getClassLoader().getResource(configFile);
 			if (config == null) {
 				throw new InvalidConfigException("Could not read config file '"
 					+ configFile + "'");
 			}
 			jsEngine.eval(new InputStreamReader(config.openStream()));
 		} catch (ScriptException e) {
-			logger.error("The Config file has error", e);
-			throw new InvalidConfigException("The config file '" + configFile + "' has error ", e);
+			logger.error("The Config file " + configFile + " has error");
+			try {
+				ExceptionUtil.logScriptException(logger, e, config);
+			} catch (IOException e1) {
+				e.printStackTrace();
+			}
+			throw new InvalidConfigException("The config file '" + configFile + "' has error in line " + e.getLineNumber(), e);
 		} catch (IOException e) {
 			throw new InvalidConfigException("Could not read config file '"
 					+ configFile + "'", e);
