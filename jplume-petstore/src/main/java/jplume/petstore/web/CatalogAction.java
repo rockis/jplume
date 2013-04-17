@@ -1,21 +1,34 @@
 package jplume.petstore.web;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-import jplume.http.HttpResponse;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 import jplume.http.Response;
+import jplume.petstore.domain.Category;
 import jplume.petstore.service.CatalogService;
 import jplume.view.annotations.Prefix;
-import jplume.view.annotations.View;
+import jplume.view.annotations.ViewMethod;
 
+@Service
 @Prefix(regex = "^/catalog")
-public class CatalogAction {
+public class CatalogAction extends AbstractAction{
 
 	@Autowired
 	private CatalogService catalogService;
 	
-	@View(regex="^$")
+	public List<Category> getCategories() {
+		return catalogService.getCategoryList();
+	}
+	
+	@ViewMethod(regex="^$")
 	public Response index() {
-		return HttpResponse.ok("ok");
+		List<Category> cs = catalogService.getCategoryList();
+		Map<String, Object> data = new HashMap<String, Object>();
+		data.put("cs", cs);
+		return render("catalog/main.html", data);
 	}
 }

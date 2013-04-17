@@ -19,6 +19,8 @@ INTERCEPTORS = [
     'jplume.interceptors.CommonInterceptor'
 ]
 
+ACTION_FACTORY = "jplume.conf.ClassActionFactory"
+
 ERROR_HANDLER = "jplume.view.StandardErrorHandler"
 
 DEFAULT_TEMPLATE_ENGINE = "freemarker"

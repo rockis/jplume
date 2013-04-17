@@ -17,8 +17,10 @@ import org.slf4j.LoggerFactory;
 import jplume.core.RequestDispatcher;
 import jplume.utils.ClassUtil;
 import jplume.utils.ExceptionUtil;
+import jplume.view.View;
+import jplume.view.ViewFactory;
 import jplume.view.annotations.Prefix;
-import jplume.view.annotations.View;
+import jplume.view.annotations.ViewMethod;
 
 public abstract class URLResolveProvider {
 	
@@ -83,9 +85,9 @@ public abstract class URLResolveProvider {
 		Method[] views = actionClass.getMethods();
 		List<URLResolver> patterns = new ArrayList<URLResolver>();
 		for (Method view : views) {
-			View anno = view.getAnnotation(View.class);
+			ViewMethod anno = view.getAnnotation(ViewMethod.class);
 			if (anno != null && !anno.regex().isEmpty()) {
-				URLResolver ur = new URLResolver(view);
+				URLResolver ur = new URLResolver(anno.regex(), ViewFactory.createView(view));
 				if (prefix != null) {
 					ur.addRegexPrefix(prefix.regex());
 				}
@@ -96,25 +98,19 @@ public abstract class URLResolveProvider {
 	}
 	
 	
-	public static URLResolverGroup patterns(String actionClassName,
-			URLResolveProvider... patterns) {
-		Class<?> actionClass;
-		try {
-			if (actionClassName.length() > 0) {
-				actionClass = ClassUtil.forName(actionClassName);
-				return new URLResolverGroup(actionClass, patterns);
-			} else {
-				return new URLResolverGroup(patterns);
-			}
-		} catch (ClassNotFoundException e) {
-			throw new IllegalURLPattern("Invalid Pattern: No Such Class '"
-					+ actionClassName + "'");
-		}
+	public static URLResolverGroup patterns(URLResolveProvider... patterns) {
+			return new URLResolverGroup(patterns);
 	}
 
 	
 	public static URLResolveProvider pattern(String regex, String classMethodName) {
-		return new URLResolver(regex, classMethodName);
+		try {
+			View view = ViewFactory.createView(classMethodName);
+			return new URLResolver(regex, view);
+		} catch (Exception e) {
+			throw new IllegalURLPattern(e.getMessage());
+		}
+		
 	}
 
 	/**

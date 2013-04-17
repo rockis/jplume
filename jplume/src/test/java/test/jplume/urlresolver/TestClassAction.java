@@ -1,7 +1,7 @@
 package test.jplume.urlresolver;
 
 import jplume.view.annotations.PathVar;
-import jplume.view.annotations.View;
+import jplume.view.annotations.ViewMethod;
 
 public class TestClassAction {
 
@@ -9,7 +9,7 @@ public class TestClassAction {
 		return "hello world";
 	}
 	
-	@View(alias="hello")
+	@ViewMethod(alias="hello")
 	public static String helloworld(@PathVar String arg) {
 		return "hello " + arg;
 	}

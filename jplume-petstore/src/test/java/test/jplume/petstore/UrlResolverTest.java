@@ -6,7 +6,7 @@ import java.util.regex.Pattern;
 import jplume.conf.Settings;
 import jplume.conf.URLResolveProvider;
 import jplume.conf.URLVisitor;
-import jplume.view.ViewMethod;
+import jplume.view.View;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -35,10 +35,10 @@ public class UrlResolverTest {
 	public void test() {
 		
 		// test _("^$", "index"),
-		ViewMethod result = urp.visit("", new URLVisitor<ViewMethod>() {
+		View result = urp.visit("", new URLVisitor<View>() {
 			@Override
-			public ViewMethod visit(Pattern pattern, String[] pathVars, Map<String, String> namedVars,
-					ViewMethod method, boolean matched) {
+			public View visit(Pattern pattern, String[] pathVars, Map<String, String> namedVars,
+					View method, boolean matched) {
 				if (matched) {
 					assertEquals(pattern.toString(), "^$");
 					return method;

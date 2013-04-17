@@ -17,7 +17,7 @@ import jplume.http.HttpResponse;
 import jplume.http.Request;
 import jplume.http.Response;
 import jplume.utils.ClassUtil;
-import jplume.view.ViewMethod;
+import jplume.view.View;
 
 public class RequestDispatcher {
 
@@ -55,7 +55,7 @@ public class RequestDispatcher {
 		try {
 			resp = resolver.visit(request.getPath(), new URLVisitor<Response>() {
 				@Override
-				public Response visit(Pattern pattern, String[] indexedVars, Map<String, String> namedVars, ViewMethod viewMethod, boolean matched) {
+				public Response visit(Pattern pattern, String[] indexedVars, Map<String, String> namedVars, View viewMethod, boolean matched) {
 					if (!matched) {
 						return null;
 					}

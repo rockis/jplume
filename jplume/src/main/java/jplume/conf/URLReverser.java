@@ -7,7 +7,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import jplume.view.ViewMethod;
+import jplume.view.View;
 
 public class URLReverser {
 
@@ -70,7 +70,7 @@ public class URLReverser {
 		String url = provider.visit("", new URLVisitor<String>() {
 			@Override
 			public String visit(Pattern pattern, String[] no_use1,
-					Map<String, String> no_use2, ViewMethod method,
+					Map<String, String> no_use2, View method,
 					boolean matched) {
 				String localClassName = className;
 				if (localClassName.charAt(0) == '.') {

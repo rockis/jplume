@@ -16,7 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import jplume.conf.Settings;
-import jplume.core.ActionContext;
+import jplume.core.Environ;
 import jplume.http.HttpResponse;
 import jplume.http.Response;
 import jplume.template.BuiltinFunctions;
@@ -45,7 +45,7 @@ public class FreemarkerEngine extends TemplateEngine {
 	@Override
 	public TemplateEngine initialize() {
 		try {
-			config = createConfiguration(ActionContext.getContext());
+			config = createConfiguration(Environ.getContext());
 		} catch (TemplateException e) {
 			logger.error(e.getMessage());
 		}
@@ -111,7 +111,7 @@ public class FreemarkerEngine extends TemplateEngine {
       
        c.setObjectWrapper(wrapper);
        
-       c.setSharedVariable("base", ActionContext.getContext().getContextPath());;
+       c.setSharedVariable("base", Environ.getContext().getContextPath());;
 		c.setSharedVariable("settings", new StaticClassModel(Settings.class, wrapper));
 		c.setSharedVariable("request", wrapper.wrap(new RequestModel()));
 		

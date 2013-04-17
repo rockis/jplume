@@ -2,14 +2,14 @@ package jplume.template.freemarker;
 
 import java.util.Map;
 
-import jplume.core.ActionContext;
+import jplume.core.Environ;
 import jplume.http.Request;
 
 public class RequestModel implements Request {
 	
 	
 	private Request getRequest() {
-		return ActionContext.getRequest();
+		return Environ.getRequest();
 	}
 
 	public Map<String, String> getMeta() {

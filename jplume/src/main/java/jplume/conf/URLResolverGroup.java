@@ -4,15 +4,6 @@ public class URLResolverGroup extends URLResolveProvider{
 	
 	private URLResolveProvider[] urlpatterns = new URLResolveProvider[0];
 	
-	public URLResolverGroup(Class<?> actionClass, URLResolveProvider... patterns) {
-		urlpatterns = patterns;
-		for (URLResolveProvider pattern : patterns) {
-			if (pattern instanceof URLResolver) {
-				((URLResolver)pattern).setActionClass(actionClass);
-			}
-		}
-	}
-
 	public URLResolverGroup(URLResolveProvider... patterns) {
 		urlpatterns = patterns;
 	}

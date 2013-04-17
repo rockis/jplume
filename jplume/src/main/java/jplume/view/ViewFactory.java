@@ -2,11 +2,12 @@ package jplume.view;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
-import java.util.regex.Pattern;
 
+import jplume.conf.IllegalURLPattern;
+import jplume.utils.ClassUtil;
 import jplume.view.annotations.PathVar;
 import jplume.view.annotations.QueryVar;
-import jplume.view.annotations.View;
+import jplume.view.annotations.ViewMethod;
 
 import jplume.view.ArgumentBuilder.PathNamedArgument;
 import jplume.view.ArgumentBuilder.PathIndexedArgument;
@@ -14,7 +15,60 @@ import jplume.view.ArgumentBuilder.QueryArgument;
 
 public class ViewFactory {
 
-	public static ViewMethod createView(Pattern pattern, Method method)
+	public static View createView(String classMethodName) {
+		int indexOfLastColon = classMethodName.lastIndexOf(':');
+
+		if (indexOfLastColon < 1) {
+			throw new IllegalURLPattern("classname:methodname!alias");
+		}
+		String className = classMethodName.substring(0, indexOfLastColon);
+		String methodName = classMethodName.substring(indexOfLastColon + 1);
+		String methodAlias = null;
+		int indexOfLastExcl = methodName.lastIndexOf('!');
+		if (indexOfLastExcl > 0) {
+			methodAlias = methodName.substring(indexOfLastExcl + 1);
+			methodName = methodName.substring(0, indexOfLastExcl);
+		}
+		
+		try {
+			Method[] possibleMethods = ClassUtil.getMethods(className,
+					methodName);
+
+			if (possibleMethods.length == 1) {
+				return createView(possibleMethods[0]);
+			} else if (possibleMethods.length == 0) {
+				throw new ViewException("No Such Method '" + className + ":" + methodName
+						+ "'");
+			} else {
+				View view = null;
+				for (Method m : possibleMethods) {
+					ViewMethod anno = m.getAnnotation(ViewMethod.class);
+					
+					if ((anno == null && methodAlias == null)
+							|| (anno != null && anno.alias()
+									.equals(methodAlias))) {
+						if (view != null) {
+							throw new IllegalURLPattern("Ambiguous method:"
+									+ m.getDeclaringClass() + "." + m.getName());
+						}
+						view = ViewFactory.createView(m);
+					}
+				}
+				if (view == null) {
+					throw new ViewException("No eplicit Method '" + className
+							+ ":" + methodName + "'");
+				}
+				return view;
+			}
+
+		} catch (ClassNotFoundException e) {
+			throw new ViewException("Class '" + className
+					+ "' not found, "
+					+ ", classmethod name is " + classMethodName);
+		}
+	}
+	
+	public static View createView(Method method)
 			throws ViewException {
 		Class<?>[] argumentTypes = method.getParameterTypes();
 
@@ -54,11 +108,11 @@ public class ViewFactory {
 		}
 
 		String[] requireMethods = new String[0];
-		View anno = method.getAnnotation(View.class);
+		ViewMethod anno = method.getAnnotation(ViewMethod.class);
 		if (anno != null) {
 			requireMethods = anno.methods();
 		}
 
-		return new ViewMethod(pattern, method, argBuilder, requireMethods);
+		return new View(method, argBuilder, requireMethods);
 	}
 }

@@ -32,7 +32,7 @@ public class StandardErrorHandler implements ErrorHandler {
 		final List<String> patterns = new ArrayList<>();
 		URLResolveProvider provider = URLResolveProvider.create(Settings.get("ROOT_URLCONF"));
 		provider.visit(request.getPath(), new URLVisitor<String>() {
-			public String visit(Pattern pattern, String[] indexedVars, Map<String, String> namedVars, ViewMethod method, boolean matched) {
+			public String visit(Pattern pattern, String[] indexedVars, Map<String, String> namedVars, View method, boolean matched) {
 				patterns.add(pattern.toString());
 				return null;
 			}

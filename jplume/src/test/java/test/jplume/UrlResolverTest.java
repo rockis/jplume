@@ -9,7 +9,7 @@ import jplume.conf.URLReverseException;
 import jplume.conf.URLResolveProvider;
 import jplume.conf.URLReverser;
 import jplume.conf.URLVisitor;
-import jplume.view.ViewMethod;
+import jplume.view.View;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -37,10 +37,10 @@ public class UrlResolverTest {
 	}
 
 	private void test(String path, String methodName, final Visitor visitor) {
-		ViewMethod result = urp.visit(path, new URLVisitor<ViewMethod>() {
+		View result = urp.visit(path, new URLVisitor<View>() {
 			@Override
-			public ViewMethod visit(Pattern p, String[] pathVars, Map<String, String> namedVars,
-					ViewMethod method, boolean matched) {
+			public View visit(Pattern p, String[] pathVars, Map<String, String> namedVars,
+					View method, boolean matched) {
 				if (matched) {
 					visitor.visit(pathVars, namedVars);
 					return method;

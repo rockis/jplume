@@ -3,14 +3,14 @@ package jplume.petstore.web;
 import java.io.File;
 
 import jplume.conf.Settings;
-import jplume.core.ActionContext;
+import jplume.core.Environ;
 import jplume.http.HttpFileResponse;
 import jplume.http.HttpResponse;
 import jplume.http.Response;
 import jplume.template.TemplateEngine;
 import jplume.view.annotations.PathVar;
 import jplume.view.annotations.QueryVar;
-import jplume.view.annotations.View;
+import jplume.view.annotations.ViewMethod;
 
 public class IndexAction extends AbstractAction{
 
@@ -23,7 +23,7 @@ public class IndexAction extends AbstractAction{
 		return render("index.html");
 	}
 	
-	@View(methods = {"POST"})
+	@ViewMethod(methods = {"POST"})
 	public String query(@PathVar int id) {
 		return id + "";
 	}
@@ -39,12 +39,12 @@ public class IndexAction extends AbstractAction{
 		return HttpResponse.ok("ok");
 	}
 	
-	@View(regex = "^/dynamic/([\\d]+)$")
+	@ViewMethod(regex = "^/dynamic/([\\d]+)$")
 	public String dynamic(@PathVar int id) {
 		return id + "<a href='/d/dynamic/123/test'>go</a>";
 	}
 	
-	@View(regex = "^/dynamic/([\\d]+)/([\\w]+)$")
+	@ViewMethod(regex = "^/dynamic/([\\d]+)/([\\w]+)$")
 	public static Response dynamic(@PathVar int id, @PathVar String name) {
 		return TemplateEngine.get().render("helloworld.html");
 	}
@@ -52,7 +52,7 @@ public class IndexAction extends AbstractAction{
 	public Response media(@PathVar(name="path") String mediaPath) {
 		
 		String mediaRoot = Settings.get("MEDIA_ROOT");
-		String resource = ActionContext.getContext().getRealPath(new File(new File(mediaRoot), mediaPath).getAbsolutePath());
+		String resource = Environ.getContext().getRealPath(new File(new File(mediaRoot), mediaPath).getAbsolutePath());
 		File mediaFile = new File(resource);
 		if (!mediaFile.exists()) {
 			return HttpResponse.notFound();

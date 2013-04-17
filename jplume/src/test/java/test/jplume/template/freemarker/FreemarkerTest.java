@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 
 import jplume.conf.Settings;
-import jplume.core.ActionContext;
+import jplume.core.Environ;
 import jplume.http.Response;
 import jplume.template.TemplateEngine;
 
@@ -22,7 +22,7 @@ public class FreemarkerTest {
 	@Before
 	public void setUp() throws Exception {
 		Settings.initalize("jplume-test.json");
-		ActionContext.setContext(new ServletContextAdapter());
+		Environ.setContext(new ServletContextAdapter());
 	}
 
 	@Test
