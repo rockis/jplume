@@ -10,9 +10,10 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import jplume.utils.ClassUtil;
+import jplume.view.ArgumentBuilder;
+import jplume.view.ArgumentBuilder.PathNamedArgument;
+import jplume.view.ViewFactory;
 import jplume.view.ViewMethod;
-import jplume.view.ViewMethod.ArgumentBuilder;
-import jplume.view.ViewMethod.PathNamedArgument;
 import jplume.view.annotations.View;
 
 public class URLResolver extends URLResolveProvider {
@@ -64,7 +65,7 @@ public class URLResolver extends URLResolveProvider {
 		View anno = view.getAnnotation(View.class);
 		assert view.getAnnotation(View.class) != null;
 		this.regex = anno.regex();
-		this.viewMethod = ViewMethod.create(this.pattern, view);
+		this.viewMethod = ViewFactory.createView(this.pattern, view);
 	}
 
 	public void addRegexPrefix(String regexPrefix) {
@@ -89,8 +90,7 @@ public class URLResolver extends URLResolveProvider {
 			}
 		}
 		if (possibleMethods.size() == 1) {
-			this.viewMethod = ViewMethod
-					.create(pattern, possibleMethods.get(0));
+			this.viewMethod = ViewFactory.createView(pattern, possibleMethods.get(0));
 		} else if (possibleMethods.size() == 0) {
 			throw new IllegalURLPattern("Invalid Pattern:" + this.pattern
 					+ " No Such Method '" + actionClass.getName() + "."
@@ -105,7 +105,7 @@ public class URLResolver extends URLResolveProvider {
 						throw new IllegalURLPattern("Ambiguous method:"
 								+ m.getDeclaringClass() + "." + m.getName());
 					}
-					this.viewMethod = ViewMethod.create(pattern, m);
+					this.viewMethod = ViewFactory.createView(pattern, m);
 				}
 			}
 			if (this.viewMethod == null) {

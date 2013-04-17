@@ -1,13 +1,10 @@
 package test.jplume.petstore;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
 
 import jplume.conf.Settings;
-import jplume.conf.URLReverseException;
 import jplume.conf.URLResolveProvider;
-import jplume.conf.URLReverser;
 import jplume.conf.URLVisitor;
 import jplume.view.ViewMethod;
 

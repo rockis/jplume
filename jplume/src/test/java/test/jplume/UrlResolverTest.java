@@ -15,6 +15,9 @@ import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
+interface Visitor {
+	public void visit(String[] pathVars, Map<String, String> namedVars);
+}
 public class UrlResolverTest {
 
 	URLResolveProvider urp = null;
@@ -33,142 +36,95 @@ public class UrlResolverTest {
 //		});
 	}
 
+	private void test(String path, String methodName, final Visitor visitor) {
+		ViewMethod result = urp.visit(path, new URLVisitor<ViewMethod>() {
+			@Override
+			public ViewMethod visit(Pattern p, String[] pathVars, Map<String, String> namedVars,
+					ViewMethod method, boolean matched) {
+				if (matched) {
+					visitor.visit(pathVars, namedVars);
+					return method;
+				}
+				return null;
+			}
+		});
+		if (result == null) {
+			fail(String.format("Not Match - path:%s, methodname:%s", path, methodName));
+		}
+		assertEquals(result.getMethod().getName(), methodName);
+	}
 	
 	@Test
 	public void test() {
 		
-		// test _("^$", "index"),
-		ViewMethod result = urp.visit("", new URLVisitor<ViewMethod>() {
+		// test _("^$", "index")
+		test("", "index", new Visitor() {
 			@Override
-			public ViewMethod visit(Pattern pattern, String[] pathVars, Map<String, String> namedVars,
-					ViewMethod method, boolean matched) {
-				if (matched) {
-					assertEquals(pattern.toString(), "^$");
-					return method;
-				}
-				return null;
+			public void visit(String[] pathVars, Map<String, String> namedVars) {
+				
 			}
 		});
-		assertEquals(result.getMethod().getName(), "index");
 		
 //	   test	_("^/indexed/([\\w]+)/([\\d]+)$", "indexedVars"),
-		result = urp.visit("/indexed/plume/123", new URLVisitor<ViewMethod>() {
+		test("/indexed/plume/123", "indexedVars", new Visitor() {
 			@Override
-			public ViewMethod visit(Pattern pattern, String[] pathVars, Map<String, String> namedVars,
-					ViewMethod method, boolean matched) {
-				if (matched) {
-					assertEquals("plume", pathVars[0]);
-					assertEquals("123", pathVars[1]);
-					return method;
-				}
-				return null;
+			public void visit(String[] pathVars, Map<String, String> namedVars) {
+				assertEquals("plume", pathVars[0]);
+				assertEquals("123", pathVars[1]);
 			}
 		});
-		assertEquals(result.getMethod().getName(), "indexedVars");
 		
-//	    test _("^/named/([\\w]+)/([\\d]+)$", "namedVars"),
-		result = urp.visit("/named/plume/123", new URLVisitor<ViewMethod>() {
+//	    test _("^/named/(?<arg1>[\\w]+)/(?<arg2>[\\d]+)$", "namedVars"),
+		test("/named/plume/123", "namedVars", new Visitor() {
 			@Override
-			public ViewMethod visit(Pattern pattern, String[] pathVars, Map<String, String> namedVars,
-					ViewMethod method, boolean matched) {
-				if (matched) {
-					assertEquals("plume", namedVars.get("arg1"));
-					assertEquals("123", namedVars.get("arg2"));
-					assertEquals(pathVars.length, 0);
-					return method;
-				}
-				return null;
+			public void visit(String[] pathVars, Map<String, String> namedVars) {
+				assertEquals("plume", namedVars.get("arg1"));
+				assertEquals("123", namedVars.get("arg2"));
+				assertEquals(pathVars.length, 0);
 			}
 		});
-		assertEquals(result.getMethod().getName(), "namedVars");
 		
-//	    test _("^/indexed_named/([\\w]+)/([\\d]+)$", "indexedNamedVars"),
-		result = urp.visit("/indexed_named/plume/123", new URLVisitor<ViewMethod>() {
+		//test "^/indexed_named/(?<arg1>[\\w]+)/(?<arg2>[\\d]+)$" indexedNamedVars
+		test("/indexed_named/plume/123", "indexedNamedVars", new Visitor() {
 			@Override
-			public ViewMethod visit(Pattern pattern, String[] pathVars, Map<String, String> namedVars,
-					ViewMethod method, boolean matched) {
-				if (matched) {
-					assertEquals("plume", namedVars.get("arg1"));
-					assertEquals("123", namedVars.get("arg2"));
-					assertEquals(pathVars.length, 0);
-					return method;
-				}
-				return null;
+			public void visit(String[] pathVars, Map<String, String> namedVars) {
+				assertEquals("plume", namedVars.get("arg1"));
+				assertEquals("123", namedVars.get("arg2"));
+				assertEquals(pathVars.length, 0);
 			}
 		});
-		assertEquals(result.getMethod().getName(), "indexedNamedVars");
 		
+		// test "^/helloworld$" helloworld
+		test("/helloworld", "helloworld", new Visitor() {
+			@Override
+			public void visit(String[] pathVars, Map<String, String> namedVars) {
+				
+			}
+		});
 		
-		// _("^/helloworld$", "test.jplume.urlresolver.TestAction2.helloworld"),
-		result = urp.visit("/helloworld", new URLVisitor<ViewMethod>() {
+		// test ^/include$ includeme
+		test("/include", "includeme", new Visitor() {
 			@Override
-			public ViewMethod visit(Pattern pattern, String[] pathVars, Map<String, String> namedVars,
-					ViewMethod method, boolean matched) {
-				if (matched) {
-					assertEquals(pattern.toString(), "^/helloworld$");
-					return method;
-				}
-				return null;
+			public void visit(String[] pathVars, Map<String, String> namedVars) {
+				
 			}
 		});
-		assertEquals(result.getMethod().getName(), "helloworld");
 		
-		// _("^/include$", "test.jplume.urlresolver.TestAction3.include"),
-		result = urp.visit("/include", new URLVisitor<ViewMethod>() {
+		// test ^/p/<class TestClassPrefixAction(regex=test):prefix(regex=prefix)
+		test("/include/param/19/name/20", "param", new Visitor() {
 			@Override
-			public ViewMethod visit(Pattern pattern, String[] pathVars, Map<String, String> namedVars,
-					ViewMethod method, boolean matched) { 
-				if (matched) {
-					assertEquals(pattern.toString(), "^/include$");
-					return method;
-				}
-				return null;
+			public void visit(String[] pathVars, Map<String, String> namedVars) {
+				
 			}
 		});
-		assertEquals(result.getMethod().getName(), "includeme");
-		// test _("^/include/param/(\d+)/([\w]+)/([\d]+)$", "test.jplume.urlresolver.TestAction3.include"),
-		result = urp.visit("/include/param/19/name/20", new URLVisitor<ViewMethod>() {
-			@Override
-			public ViewMethod visit(Pattern pattern, String[] pathVars, Map<String, String> namedVars,
-					ViewMethod method, boolean matched) {
-				if (matched) {
-					assertEquals(pathVars.length, 3);
-					assertEquals(pathVars[0], "19");
-					assertEquals(pathVars[1], "name");
-					assertEquals(pathVars[2], "20");
-					assertEquals(pattern.toString(), "^/include/param/(\\d+)/([\\w]+)/([\\d]+)$");
-					return method;
-				}
-				return null;
-			}
-		});
-		assertEquals(result.getMethod().getName(), "param");
 		
-		// test _("^/p", "test.jplume.urlresolver.TestClassPrefixAction")
-		result = urp.visit("/p/test/prefix", new URLVisitor<ViewMethod>() {
+		// test ^/p/<class TestClassPrefixAction(regex=test):prefix(regex=prefix)
+		test("/includeclass/prefix", "prefix2", new Visitor() {
 			@Override
-			public ViewMethod visit(Pattern pattern, String[] pathVars, Map<String, String> namedVars,
-					ViewMethod method, boolean matched) {
-				if (matched) {
-					return method;
-				}
-				return null;
+			public void visit(String[] pathVars, Map<String, String> namedVars) {
+				
 			}
 		});
-		assertEquals(result.getMethod().getName(), "prefix");
-		
-		// test include(".TestClassIncludeAction")
-		result = urp.visit("/includeclass/prefix", new URLVisitor<ViewMethod>() {
-			@Override
-			public ViewMethod visit(Pattern pattern, String[] pathVars, Map<String, String> namedVars,
-					ViewMethod method, boolean matched) {
-				if (matched) {
-					return method;
-				}
-				return null;
-			}
-		});
-		assertEquals(result.getMethod().getName(), "prefix2");
 		
 	}
 
