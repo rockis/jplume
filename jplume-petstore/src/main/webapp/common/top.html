@@ -3,12 +3,10 @@
 <html>
 
 <head>
-<link rel="StyleSheet" href="../css/jpetstore.css" type="text/css"
+<link rel="StyleSheet" href="${base}/css/jpetstore.css" type="text/css"
 	media="screen" />
 
-<meta name="generator"
-	content="HTML Tidy for Linux/x86 (vers 1st November 2002), see www.w3.org" />
-<title>JPetStore Demo</title>
+<title>JPlume Petstore Demo</title>
 <meta content="text/html; charset=windows-1252"
 	http-equiv="Content-Type" />
 <meta http-equiv="Cache-Control" content="max-age=0" />
@@ -23,18 +21,16 @@
 <div id="Header">
 
 <div id="Logo">
-<div id="LogoContent"><stripes:link
-	beanclass="org.mybatis.jpetstore.web.actions.CatalogActionBean">
+<div id="LogoContent">${ url('.CatalogAction:index') }
 	<img src="../images/logo-topbar.gif" />
-</stripes:link></div>
+</div>
 </div>
 
 <div id="Menu">
-<div id="MenuContent"><stripes:link
-	beanclass="org.mybatis.jpetstore.web.actions.CartActionBean"
-	event="viewCart">
+<div id="MenuContent">${ url('.CartAction:cart') }
 	<img align="middle" name="img_cart" src="../images/cart.gif" />
-</stripes:link> <img align="middle" src="../images/separator.gif" /> <c:if
+   <img align="middle" src="../images/separator.gif" /> 
+   <c:if
 	test="${sessionScope.accountBean == null}">
 	<stripes:link
 		beanclass="org.mybatis.jpetstore.web.actions.AccountActionBean"

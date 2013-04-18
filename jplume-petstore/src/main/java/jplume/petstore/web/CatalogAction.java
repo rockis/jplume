@@ -17,6 +17,10 @@ import jplume.view.annotations.ViewMethod;
 @Prefix(regex = "^/catalog")
 public class CatalogAction extends AbstractAction{
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 8859837428745088581L;
 	@Autowired
 	private CatalogService catalogService;
 	
