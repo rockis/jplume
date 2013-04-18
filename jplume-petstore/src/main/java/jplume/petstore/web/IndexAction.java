@@ -50,7 +50,6 @@ public class IndexAction extends AbstractAction{
 	}
 	
 	public Response media(@PathVar(name="path") String mediaPath) {
-		
 		String mediaRoot = Settings.get("MEDIA_ROOT");
 		String resource = Environ.getContext().getRealPath(new File(new File(mediaRoot), mediaPath).getAbsolutePath());
 		File mediaFile = new File(resource);

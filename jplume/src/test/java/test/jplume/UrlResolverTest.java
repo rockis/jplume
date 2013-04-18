@@ -7,6 +7,7 @@ import java.util.regex.Pattern;
 import jplume.conf.Settings;
 import jplume.conf.URLReverseException;
 import jplume.conf.URLResolveProvider;
+import jplume.conf.URLReverseNotMatch;
 import jplume.conf.URLReverser;
 import jplume.conf.URLVisitor;
 import jplume.view.View;
@@ -128,7 +129,7 @@ public class UrlResolverTest {
 		
 	}
 
-	//@Test
+	@Test
 	public void testReverse() {
 		URLResolveProvider urp = URLResolveProvider.create("test/jplume/urlresolver/test.urls");
 		URLReverser ur = new URLReverser(urp);
@@ -138,6 +139,19 @@ public class UrlResolverTest {
 		url = (ur.reverse(".TestSimpleAction", "indexedVars", new String[]{"nma", "20"}));
 		assertEquals("/indexed/nma/20", url);
 		
+		url = (ur.reverse(".TestClassPrefixAction", "overload"));
+		assertEquals("/p/test/overload", url);
+		
+		url = (ur.reverse(".TestClassPrefixAction", "overload", new String[]{"ooo"}));
+		assertEquals("/p/test/overload/ooo", url);
+		
+		try {
+			url = (ur.reverse(".TestClassPrefixAction", "overload", new String[]{"ooo", "fff"}));
+			assertEquals("/p/test/overload/ooo", url);
+			fail();
+		} catch (Exception e1) {
+		}
+		
 		Map<String, String> args = new HashMap<String, String>();
 		args.put("arg1", "nma");
 		args.put("arg2", "20");
@@ -146,17 +160,15 @@ public class UrlResolverTest {
 		args.put("arg3", "err");
 		try {
 			url = ur.reverse(".TestSimpleAction", "namedVars", args);
-			assertTrue(false);
+			fail();
 		} catch (URLReverseException e) {
-			assertTrue(true);
 		}
 		args.clear();
 		args.put("arg3", "err");
 		try {
 			url = ur.reverse(".TestSimpleAction", "namedVars", args);
-			assertTrue(false);
+			fail();
 		} catch (URLReverseException e) {
-			assertTrue(true);
 		}
 	}
 }

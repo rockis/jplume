@@ -1,7 +1,7 @@
 
 urlpatterns = patterns(
 	_("^/$", ".IndexAction:index"),
-	_("^/(?<path>(stylesheet|js|images)/.*)$", ".IndexAction:media"),
+	_("^/(?<path>(css|stylesheet|js|images)/.*)$", ".IndexAction:media"),
 	include(".CatalogAction"),
 	include(".CartAction")
 //	_("^/query/([\\d]+)$", "query"),

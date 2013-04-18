@@ -6,7 +6,7 @@ DEBUG = true
 
 ROOT_URLCONF = "petstore.urls"
 
-MEDIA_ROOT = "/www"
+MEDIA_ROOT = "/media"
 	
 USE_ETAGS = true
 

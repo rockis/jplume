@@ -5,6 +5,7 @@ import java.util.regex.Pattern;
 
 import jplume.conf.Settings;
 import jplume.conf.URLResolveProvider;
+import jplume.conf.URLReverser;
 import jplume.conf.URLVisitor;
 import jplume.view.View;
 
@@ -31,22 +32,27 @@ public class UrlResolverTest {
 	}
 
 	
-	@Test
+//	@Test
 	public void test() {
 		
 		// test _("^$", "index"),
-		View result = urp.visit("", new URLVisitor<View>() {
+		View result = urp.visit("/", new URLVisitor<View>() {
 			@Override
 			public View visit(Pattern pattern, String[] pathVars, Map<String, String> namedVars,
 					View method, boolean matched) {
 				if (matched) {
-					assertEquals(pattern.toString(), "^$");
 					return method;
 				}
 				return null;
 			}
 		});
 		assertEquals(result.getMethod().getName(), "index");
-		
+	}
+
+	@Test
+	public void testReverse() {
+		URLReverser ur = new URLReverser(URLResolveProvider.create(Settings.get("ROOT_URLCONF")));
+//		System.out.println(ur.reverse(".CatalogAction", "index"));
+		System.out.println(ur.reverse(".CatalogAction", "index", new String[]{"FISH"}));
 	}
 }

@@ -10,8 +10,6 @@ import java.util.regex.Pattern;
 
 import jplume.view.ArgumentBuilder;
 import jplume.view.ArgumentBuilder.PathNamedArgument;
-import jplume.view.ViewException;
-import jplume.view.ViewFactory;
 import jplume.view.View;
 
 public class URLResolver extends URLResolveProvider {

@@ -13,7 +13,7 @@ import jplume.view.annotations.ViewMethod;
 
 @Service
 @Prefix(regex = "^/cart")
-public class CartActionBean extends AbstractAction {
+public class CartAction extends AbstractAction {
 
 	private static final long serialVersionUID = -4038684592582714235L;
 
@@ -35,8 +35,8 @@ public class CartActionBean extends AbstractAction {
 		this.workingItemId = workingItemId;
 	}
 
-	@ViewMethod(regex = "^/view$")
-	public Response view() {
+	@ViewMethod(regex = "^$")
+	public Response index() {
 		return render("cart.html");
 	}
 
@@ -58,7 +58,7 @@ public class CartActionBean extends AbstractAction {
 			cart.addItem(item, isInStock);
 		}
 
-		return view();
+		return index();
 	}
 
 //	public Response remove() {

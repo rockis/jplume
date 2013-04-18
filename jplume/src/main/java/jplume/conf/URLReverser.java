@@ -1,6 +1,7 @@
 package jplume.conf;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
@@ -23,11 +24,10 @@ public class URLReverser {
 
 	public String reverse(final String className, final String methodName,
 			final String[] pathVars) {
-		LinkedList<String> vars = new LinkedList<String>(Arrays.asList(pathVars));
 		CloseBracket<LinkedList<String>> cb = new CloseBracket<LinkedList<String>>() {
 			public void process(MatchGroup g, LinkedList<String> vars) {
 				if (vars.size() == 0) {
-					throw new URLReverseException("less arguments");
+					throw new URLReverseNotMatch();
 				}
 				String var = vars.peekFirst();
 				if (g.decline(var)) {
@@ -35,15 +35,16 @@ public class URLReverser {
 				}
 			}
 		};
+		
+		LinkedList<String> vars = new LinkedList<String>(Arrays.asList(pathVars));
 		String url = reverse(className, methodName, cb, vars);
 		if (vars.size() > 0) 
-			throw new URLReverseException("");
+			throw new URLReverseNotMatch();
 		return url;
 	}
 
 	public String reverse(final String className, final String methodName,
 			final Map<String, String> namedVars) {
-		Map<String, String> vars = new HashMap<String, String>(namedVars);
 		CloseBracket<Map<String, String>> cb = new CloseBracket<Map<String, String>>() {
 			public void process(MatchGroup g, Map<String, String> vars) {
 				String name = g.name();
@@ -51,7 +52,7 @@ public class URLReverser {
 					g.decline();
 				}else{
 					if (vars.size() == 0 || !vars.containsKey(name)) {
-						throw new URLReverseException("less arguments");
+						throw new URLReverseNotMatch();
 					}
 					if (g.decline(vars.get(name))) {
 						vars.remove(name);
@@ -59,28 +60,34 @@ public class URLReverser {
 				}
 			}
 		};
+		
+		Map<String, String> vars = new HashMap<String, String>(namedVars);
 		String url = reverse(className, methodName, cb, vars);
 		if (vars.size() > 0) 
-			throw new URLReverseException("more arguments");
+			throw new URLReverseNotMatch();
 		return url;
 	}
 
 	private <T> String reverse(final String className, final String methodName,
 			final CloseBracket<T> cb, final T vars) {
+		
 		String url = provider.visit("", new URLVisitor<String>() {
 			@Override
 			public String visit(Pattern pattern, String[] no_use1,
-					Map<String, String> no_use2, View method,
+					Map<String, String> no_use2, View view,
 					boolean matched) {
 				String localClassName = className;
 				if (localClassName.charAt(0) == '.') {
 					localClassName = Settings.get("DEFAULT_PACKAGE_PREFIX") + localClassName;
 				}
-				if (method.getMethod().getDeclaringClass().getName()
+				if (view.getMethod().getDeclaringClass().getName()
 						.equals(localClassName)
-						&& method.getMethod().getName().equals(methodName)) {
-					
-					return match(pattern.toString(), cb, vars);
+						&& view.getMethod().getName().equals(methodName)) {
+					try {
+						return match(pattern.toString(), cb, vars);
+					} catch (URLReverseNotMatch e) {
+						return null;
+					}
 				}
 				return null;
 			}
@@ -120,6 +127,15 @@ public class URLReverser {
 				}
 			}
 			top.append(c);
+		}
+		if (vars instanceof Map) {
+			if (((Map<?, ?>)vars).size() > 0) {
+				throw new URLReverseNotMatch();
+			}
+		}else if (vars instanceof Collection<?>){
+			if (((Collection<?>)vars).size() > 0) {
+				throw new URLReverseNotMatch();
+			}
 		}
 		return top.toString();
 	}

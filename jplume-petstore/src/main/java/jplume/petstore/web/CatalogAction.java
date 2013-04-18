@@ -7,9 +7,11 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import jplume.http.HttpResponse;
 import jplume.http.Response;
 import jplume.petstore.domain.Category;
 import jplume.petstore.service.CatalogService;
+import jplume.view.annotations.PathVar;
 import jplume.view.annotations.Prefix;
 import jplume.view.annotations.ViewMethod;
 
@@ -34,5 +36,18 @@ public class CatalogAction extends AbstractAction{
 		Map<String, Object> data = new HashMap<String, Object>();
 		data.put("cs", cs);
 		return render("catalog/main.html", data);
+	}
+	
+	@ViewMethod(regex="^/([\\w]+)$")
+	public Response index(@PathVar String catalog) {
+		List<Category> cs = catalogService.getCategoryList();
+		Map<String, Object> data = new HashMap<String, Object>();
+		data.put("cs", cs);
+		return render("catalog/main.html", data);
+	}
+	
+	@ViewMethod(regex="^/search$") 
+	public Response search(){
+		return HttpResponse.ok("ok");
 	}
 }
