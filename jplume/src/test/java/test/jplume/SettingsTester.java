@@ -7,15 +7,9 @@ import java.util.Map;
 
 import jplume.conf.Settings;
 
-import org.junit.Before;
 import org.junit.Test;
 
-public class SettingsTest {
-
-	@Before
-	public void setUp() throws Exception {
-		Settings.initalize("jplume-default.json");
-	}
+public class SettingsTester extends JPlumeTester {
 
 	@Test
 	public void test() {

@@ -23,7 +23,7 @@
 <div id="Logo">
 <div id="LogoContent">
     <a href="${ url('.CatalogAction:index') }">
-	<img src="../images/logo-topbar.gif" />
+	<img src="${base}/images/logo-topbar.gif" />
 	</a>
 </div>
 </div>
@@ -31,48 +31,22 @@
 <div id="Menu">
 <div id="MenuContent">
     <a href="${ url('.CartAction:index') }">
-	<img align="middle" name="img_cart" src="../images/cart.gif" />
-	</a>
-   <img align="middle" src="../images/separator.gif" /> 
-   <#--
-   <c:if
-	test="${sessionScope.accountBean == null}">
-	<stripes:link
-		beanclass="org.mybatis.jpetstore.web.actions.AccountActionBean"
-		event="signonForm">
-          Sign In
-	    </stripes:link>
-</c:if> <c:if test="${sessionScope.accountBean != null}">
-	<c:if test="${!sessionScope.accountBean.authenticated}">
-		<stripes:link
-			beanclass="org.mybatis.jpetstore.web.actions.AccountActionBean"
-			event="signonForm">
-            Sign In
-	      </stripes:link>
-	</c:if>
-</c:if> <c:if test="${sessionScope.accountBean != null}">
-	<c:if test="${sessionScope.accountBean.authenticated}">
-		<stripes:link
-			beanclass="org.mybatis.jpetstore.web.actions.AccountActionBean"
-			event="signoff">
-            Sign Out
-	      </stripes:link>
-		<img align="middle" src="../images/separator.gif" />
-		<stripes:link
-			beanclass="org.mybatis.jpetstore.web.actions.AccountActionBean"
-			event="editAccountForm">
-            My Account
-	      </stripes:link>
-	</c:if>
-</c:if>
-    -->
- <img align="middle" src="../images/separator.gif" /> <a
-	href="../help.html">?</a></div>
+	 <img align="middle" name="img_cart" src="${base}/images/cart.gif" />
+	 </a>
+    <img align="middle" src="${base}/images/separator.gif" /> 
+    <#if !request.session.user?exists >
+   		<a href="${ url('.AccountAction:login') }">Sign In</a>
+   	 <#else>
+   	 	<a href="${ url('.AccountAction:logout') }">Sign Out</a>
+   	 	<a href="${ url('.AccountAction:profile') }">My Account</a>
+    </#if>
+	 <img align="middle" src="${base}/images/separator.gif" /> 
+	 <a href="${ url('.IndexAction:help') }">?</a></div>
 </div>
 
 <div id="Search">
 <div id="SearchContent">
-    <form action="${ url('.CatalogAction:search') }" method="post">
+    <form action="${ url('.CatalogAction:search') }" method="get">
         <input type="text" name="keyword" size="14"/>
         <input value="Search" type="submit" />
     </form>
@@ -81,31 +55,31 @@
 
 <div id="QuickLinks">
     <a href="${ urli('.CatalogAction:index', ['FISH']) }">
-	<img src="../images/sm_fish.gif" />
+	<img src="${base}/images/sm_fish.gif" />
     </a>
     
-    <img src="../images/separator.gif" /> 
+    <img src="${base}/images/separator.gif" /> 
     <a href="${ urli('.CatalogAction:index', ['DOGS']) }">
-	<img src="../images/sm_dogs.gif" />
+	<img src="${base}/images/sm_dogs.gif" />
     </a>
     
-    <img src="../images/separator.gif" /> 
+    <img src="${base}/images/separator.gif" /> 
     
     <a href="${ urli('.CatalogAction:index', ['REPTILES']) }">
-    <img src="../images/sm_reptiles.gif" />
+    <img src="${base}/images/sm_reptiles.gif" />
     </a>
     
-    <img src="../images/separator.gif" /> 
+    <img src="${base}/images/separator.gif" /> 
     
     <a href="${ urli('.CatalogAction:index', ['CATS']) }">
-	<img src="../images/sm_cats.gif" />
+	<img src="${base}/images/sm_cats.gif" />
 	</a>
-	<img src="../images/separator.gif" /> 
+	<img src="${base}/images/separator.gif" /> 
     
 	<a href="${ urli('.CatalogAction:index', ['BIRDS']) }">
-	<img src="../images/sm_birds.gif" />
+	<img src="${base}/images/sm_birds.gif" />
     </a>
-    <img src="../images/separator.gif" />
+    <img src="${base}/images/separator.gif" />
 </div>
 
 </div>

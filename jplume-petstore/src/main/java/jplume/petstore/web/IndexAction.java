@@ -20,12 +20,12 @@ public class IndexAction extends AbstractAction{
 	private static final long serialVersionUID = -3833500246043084155L;
 
 	public Response index(){
+//		return HttpResponse.redirect(CatalogAction.class, "index");
 		return render("index.html");
 	}
 	
-	@ViewMethod(methods = {"POST"})
-	public String query(@PathVar int id) {
-		return id + "";
+	public Response help() {
+		return render("help.html");
 	}
 	
 	public Response query(@PathVar int id, @QueryVar(name = "q", defval = "1") int q) {

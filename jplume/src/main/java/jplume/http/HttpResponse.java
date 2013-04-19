@@ -3,10 +3,12 @@ package jplume.http;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletResponse;
 
 import jplume.conf.Settings;
+import jplume.core.Environ;
 
 public class HttpResponse extends AbstractResponse {
 
@@ -27,6 +29,10 @@ public class HttpResponse extends AbstractResponse {
 		this.setCharset(charset);
 	}
 	
+	public HttpResponse(int status) {
+		super(status);
+	}
+	
 	public HttpResponse(int status, InputStream content) {
 		this(status, content, Settings.getDefaultContentType(), null);
 	}
@@ -35,16 +41,28 @@ public class HttpResponse extends AbstractResponse {
 		this(status, content, contentType, null);
 	}
 	
-	public HttpResponse(int status) {
-		super(status);
-	}
-	
 	public static Response create(int status, String content) {
 		return new HttpResponse(status, new ByteArrayInputStream(content.getBytes()));
 	}
 	
 	public static Response ok(String content) {
 		return create(HttpServletResponse.SC_OK, content);
+	}
+	
+	public static Response redirect(String url) {
+		return new HttpRedirectResponse(url);
+	}
+	
+	public static Response redirect(Class<?> clazz, String methodName) {
+		return new HttpRedirectResponse(Environ.reverseURL(clazz, methodName));
+	}
+	
+	public static Response redirect(Class<?> clazz, String methodName, String[] pathVars) {
+		return new HttpRedirectResponse(Environ.reverseURL(clazz, methodName, pathVars));
+	}
+	
+	public static Response redirect(Class<?> clazz, String methodName, Map<String, String> namedVars) {
+		return new HttpRedirectResponse(Environ.reverseURL(clazz, methodName, namedVars));
 	}
 	
 	public static Response notModified(String mimeType) {
@@ -61,11 +79,11 @@ public class HttpResponse extends AbstractResponse {
 	}
 	
 	public static Response internalError(Throwable e) {
-		return new Http500Response(e);
+		return new HttpErrorResponse(e);
 	}
 	
 	public static Response internalError(String message, Throwable e) {
-		return new Http500Response(message, e);
+		return new HttpErrorResponse(message, e);
 	}
 	
 	@Override

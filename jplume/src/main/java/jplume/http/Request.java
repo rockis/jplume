@@ -32,4 +32,5 @@ public interface Request {
 	
 	public String getHeader(String name);
 	
+	public Session getSession();
 }

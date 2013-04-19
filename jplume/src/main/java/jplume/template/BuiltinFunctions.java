@@ -4,18 +4,14 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import jplume.conf.Settings;
-import jplume.conf.URLResolveProvider;
-import jplume.conf.URLReverser;
+import jplume.core.Environ;
 import jplume.template.annotations.TemplateFunctionObject;
+import jplume.utils.ClassUtil;
 
 @TemplateFunctionObject
 public class BuiltinFunctions {
 
-	private URLReverser urlreserver = null;
-	
 	public BuiltinFunctions() {
-		urlreserver = new URLReverser(URLResolveProvider.create(Settings.get("ROOT_URLCONF")));
 	}
 	
 	public Date date() {
@@ -27,24 +23,24 @@ public class BuiltinFunctions {
 		return new Date(tt);
 	}
 	
-	public String url(String classMethodName) {
+	public String url(String classMethodName) throws ClassNotFoundException{
 		int indexOfLastComma = classMethodName.indexOf(':');
 		String className = classMethodName.substring(0, indexOfLastComma);
 		String methodName = classMethodName.substring(indexOfLastComma + 1);
-		return urlreserver.reverse(className, methodName);
+		return Environ.reverseURL(ClassUtil.forName(className), methodName);
 	}
 	
-	public String urli(String classMethodName, List<String> args) {
+	public String urli(String classMethodName, List<String> args) throws ClassNotFoundException {
 		int indexOfLastComma = classMethodName.indexOf(':');
 		String className = classMethodName.substring(0, indexOfLastComma);
 		String methodName = classMethodName.substring(indexOfLastComma + 1);
-		return urlreserver.reverse(className, methodName, args.toArray(new String[0]));
+		return Environ.reverseURL(ClassUtil.forName(className), methodName, args.toArray(new String[0]));
 	}
 	
-	public String urln(String classMethodName, Map<String, String> namedArgs) {
+	public String urln(String classMethodName, Map<String, String> namedArgs) throws ClassNotFoundException {
 		int indexOfLastComma = classMethodName.indexOf(':');
 		String className = classMethodName.substring(0, indexOfLastComma);
 		String methodName = classMethodName.substring(indexOfLastComma + 1);
-		return urlreserver.reverse(className, methodName, namedArgs);
+		return Environ.reverseURL(ClassUtil.forName(className), methodName, namedArgs);
 	}
 }

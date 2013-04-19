@@ -1,8 +1,11 @@
 package jplume.core;
 
+import java.util.Map;
+
 import javax.servlet.ServletContext;
 
 import jplume.conf.ObjectFactory;
+import jplume.conf.URLReverser;
 import jplume.http.Request;
 import jplume.view.View;
 
@@ -12,13 +15,15 @@ public class Environ {
 	
 	private static ObjectFactory actionFactory = null;
 	
+	private static URLReverser urlReverser = null;
+	
 	private static ThreadLocal<Request> request = new ThreadLocal<>();
 	
 	private static ThreadLocal<View> view = new ThreadLocal<>();
 	
 	public static void setContext(ServletContext cntx) {
 		assert context == null;
-		context = cntx;
+		Environ.context = cntx;
 	}
 
 	public static ServletContext getContext() {
@@ -26,9 +31,13 @@ public class Environ {
 	}
 	
 	public static void setActionFactory(ObjectFactory factory) {
-		actionFactory = factory;
+		Environ.actionFactory = factory;
 	}
 	
+	public static void setUrlReverser(URLReverser urlReverser) {
+		Environ.urlReverser = urlReverser;
+	}
+
 	public static String getContextPath() {
 		return getContext().getContextPath();
 	}
@@ -57,5 +66,17 @@ public class Environ {
 	
 	public static <T> T createInstanceOf(Class<T> type) {
 		return actionFactory.createObject(type);
+	}
+	
+	public static String reverseURL(Class<?> clazz, String methodName) {
+		return Environ.urlReverser.reverse(clazz.getName(), methodName);
+	}
+	
+	public static String reverseURL(Class<?> clazz, String methodName, String[] pathVars) {
+		return Environ.urlReverser.reverse(clazz.getName(), methodName, pathVars);
+	}
+	
+	public static String reverseURL(Class<?> clazz, String methodName, Map<String, String> namedVars) {
+		return Environ.urlReverser.reverse(clazz.getName(), methodName, namedVars);
 	}
 }

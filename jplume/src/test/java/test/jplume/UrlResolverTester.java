@@ -4,8 +4,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
 
-import jplume.conf.Settings;
-import jplume.conf.URLReverseException;
 import jplume.conf.URLResolveProvider;
 import jplume.conf.URLReverseNotMatch;
 import jplume.conf.URLReverser;
@@ -19,14 +17,11 @@ import static org.junit.Assert.*;
 interface Visitor {
 	public void visit(String[] pathVars, Map<String, String> namedVars);
 }
-public class UrlResolverTest {
+public class UrlResolverTester extends JPlumeTester {
 
-	URLResolveProvider urp = null;
 
 	@Before
 	public void setUp() throws Exception {
-		Settings.initalize("jplume-test.json");
-		urp =  URLResolveProvider.create(Settings.get("ROOT_URLCONF"));
 		
 //		URLResolveProvider provider = URLResolveProvider.create(Settings.get("ROOT_URLCONF"));
 //		provider.visit("", new URLVisitor<String>() {
@@ -161,14 +156,14 @@ public class UrlResolverTest {
 		try {
 			url = ur.reverse(".TestSimpleAction", "namedVars", args);
 			fail();
-		} catch (URLReverseException e) {
+		} catch (URLReverseNotMatch e) {
 		}
 		args.clear();
 		args.put("arg3", "err");
 		try {
 			url = ur.reverse(".TestSimpleAction", "namedVars", args);
 			fail();
-		} catch (URLReverseException e) {
+		} catch (URLReverseNotMatch e) {
 		}
 	}
 }

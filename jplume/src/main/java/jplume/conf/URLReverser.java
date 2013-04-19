@@ -1,7 +1,6 @@
 package jplume.conf;
 
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
@@ -25,47 +24,101 @@ public class URLReverser {
 	public String reverse(final String className, final String methodName,
 			final String[] pathVars) {
 		CloseBracket<LinkedList<String>> cb = new CloseBracket<LinkedList<String>>() {
-			public void process(MatchGroup g, LinkedList<String> vars) {
+			public LinkedList<String> onCloseBracket(MatchGroup g, LinkedList<String> vars) {
 				if (vars.size() == 0) {
-					throw new URLReverseNotMatch();
+					throw new URLReverseNotMatch("Not enough argument");
 				}
 				String var = vars.peekFirst();
 				if (g.decline(var)) {
 					vars.pollFirst();
 				}
+				return new LinkedList<>(vars);
 			}
+
+			@Override
+			public int sizeof(LinkedList<String> t) {
+				return t.size();
+			}
+
+			@Override
+			public void print(LinkedList<String> t) {
+				for (String string : pathVars) {
+					System.out.println(string);
+				}
+			}
+
+			@Override
+			public LinkedList<String> copy(LinkedList<String> src) {
+				return new LinkedList<>(src);
+			}
+
+			@Override
+			public String toString() {
+				StringBuffer str = new StringBuffer(String.format("%s:%s", className, methodName));
+				if (pathVars.length > 0) {
+					for(String var : pathVars) {
+						str.append(String.format(",%s", var));
+					}
+				}
+				return str.toString();
+			}
+			
 		};
 		
 		LinkedList<String> vars = new LinkedList<String>(Arrays.asList(pathVars));
-		String url = reverse(className, methodName, cb, vars);
-		if (vars.size() > 0) 
-			throw new URLReverseNotMatch();
-		return url;
+		return reverse(className, methodName, cb, vars);
 	}
 
 	public String reverse(final String className, final String methodName,
 			final Map<String, String> namedVars) {
 		CloseBracket<Map<String, String>> cb = new CloseBracket<Map<String, String>>() {
-			public void process(MatchGroup g, Map<String, String> vars) {
+			public Map<String, String> onCloseBracket(MatchGroup g, Map<String, String> vars) {
 				String name = g.name();
 				if (name == null) {
 					g.decline();
 				}else{
 					if (vars.size() == 0 || !vars.containsKey(name)) {
-						throw new URLReverseNotMatch();
+						throw new URLReverseNotMatch("No such named pathvar:" + name);
 					}
 					if (g.decline(vars.get(name))) {
 						vars.remove(name);
 					}
 				}
+				return new HashMap<>(vars);
 			}
+
+			@Override
+			public int sizeof(Map<String, String> t) {
+				return t.size();
+			}
+
+			@Override
+			public void print(Map<String, String> t) {
+				for(Map.Entry<String, String> entry : t.entrySet()) {
+					System.out.println(String.format("%s => %s", entry.getKey(), entry.getValue()));
+				}
+			}
+
+			@Override
+			public Map<String, String> copy(Map<String, String> src) {
+				return new HashMap<>(src);
+			}
+
+			@Override
+			public String toString() {
+				StringBuffer str = new StringBuffer(String.format("%s:%s", className, methodName));
+				if (namedVars.size() > 0) {
+					for(Map.Entry<String, String> entry : namedVars.entrySet()) {
+						str.append(String.format(",%s:%s", entry.getKey(), entry.getValue()));
+					}
+				}
+				return str.toString();
+			}
+			
 		};
 		
 		Map<String, String> vars = new HashMap<String, String>(namedVars);
-		String url = reverse(className, methodName, cb, vars);
-		if (vars.size() > 0) 
-			throw new URLReverseNotMatch();
-		return url;
+		return reverse(className, methodName, cb, vars);
 	}
 
 	private <T> String reverse(final String className, final String methodName,
@@ -84,7 +137,7 @@ public class URLReverser {
 						.equals(localClassName)
 						&& view.getMethod().getName().equals(methodName)) {
 					try {
-						return match(pattern.toString(), cb, vars);
+						return match(pattern.toString(), cb, cb.copy(vars));
 					} catch (URLReverseNotMatch e) {
 						return null;
 					}
@@ -93,7 +146,7 @@ public class URLReverser {
 			}
 		});
 		if (url == null) {
-			throw new URLReverseException(className + ":" + methodName);
+			throw new URLReverseNotMatch(cb.toString());
 		}
 		if (url.length() == 0) {
 			return url;
@@ -121,27 +174,24 @@ public class URLReverser {
 					continue;
 				}
 				if (c == ')') {
-					cb.process(top, vars);
+					cb.onCloseBracket(top, vars);
 					top = top.parent();
 					continue;
 				}
 			}
 			top.append(c);
 		}
-		if (vars instanceof Map) {
-			if (((Map<?, ?>)vars).size() > 0) {
-				throw new URLReverseNotMatch();
-			}
-		}else if (vars instanceof Collection<?>){
-			if (((Collection<?>)vars).size() > 0) {
-				throw new URLReverseNotMatch();
-			}
+		if (cb.sizeof(vars) > 0) {
+			throw new URLReverseNotMatch("too much arguments");
 		}
 		return top.toString();
 	}
 
 	private interface CloseBracket<T> {
-		public void process(MatchGroup top, T vars);
+		public T onCloseBracket(MatchGroup top, T vars);
+		public int sizeof(T t);
+		public void print(T t);
+		public T copy(T src);
 	}
 
 	private static class MatchGroup {

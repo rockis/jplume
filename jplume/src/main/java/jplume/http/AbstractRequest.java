@@ -13,10 +13,12 @@ public abstract class AbstractRequest implements Request {
 	protected final HttpServletRequest rawRequest;
 	
 	public final Map<String, String> META;
+	protected final Session session;
 	
 	public AbstractRequest(HttpServletRequest request) {
-		this.rawRequest     = request;
-		this.META = Collections.unmodifiableMap(createMeta(request));
+		this.rawRequest = request;
+		this.session    = new Session(request.getSession());
+		this.META       = Collections.unmodifiableMap(createMeta(request));
 	}
 	
 	protected Map<String, String> createMeta(HttpServletRequest request) {
@@ -98,5 +100,9 @@ public abstract class AbstractRequest implements Request {
 	public StringBuffer getRequestURL() {
 		return rawRequest.getRequestURL();
 	}
-	
+
+	@Override
+	public Session getSession() {
+		return session;
+	}
 }

@@ -6,7 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import jplume.conf.Settings;
-import jplume.http.Http500Response;
+import jplume.http.HttpErrorResponse;
 import jplume.http.Request;
 import jplume.http.Response;
 import jplume.utils.ClassUtil;
@@ -64,8 +64,8 @@ public class CommonInterceptor extends InterceptorAdapter {
 			case 404:
 				return errorHandler.handle404(request);
 			case 500:
-				if (response instanceof Http500Response) {
-					return errorHandler.handle500(request, ((Http500Response)response).getException());
+				if (response instanceof HttpErrorResponse) {
+					return errorHandler.handle500(request, ((HttpErrorResponse)response).getException());
 				}
 			}
 		}

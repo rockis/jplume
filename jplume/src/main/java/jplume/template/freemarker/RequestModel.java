@@ -4,6 +4,7 @@ import java.util.Map;
 
 import jplume.core.Environ;
 import jplume.http.Request;
+import jplume.http.Session;
 
 public class RequestModel implements Request {
 	
@@ -67,4 +68,10 @@ public class RequestModel implements Request {
 	public String getHeader(String name) {
 		return getRequest().getHeader(name);
 	}
+
+	@Override
+	public Session getSession() {
+		return getRequest().getSession();
+	}
+	
 }

@@ -1,9 +1,11 @@
 
 urlpatterns = patterns(
 	_("^/$", ".IndexAction:index"),
+	_("^/help$", ".IndexAction:help"),
 	_("^/(?<path>(css|stylesheet|js|images)/.*)$", ".IndexAction:media"),
 	include(".CatalogAction"),
-	include(".CartAction")
+	include(".CartAction"),
+	include(".AccountAction")
 //	_("^/query/([\\d]+)$", "query"),
 //	_("^/d", include('jplume.petstore.IndexAction'))
 )

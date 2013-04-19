@@ -7,18 +7,22 @@ import java.io.PrintWriter;
 
 import javax.servlet.http.HttpServletResponse;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import jplume.conf.Settings;
 
-public class Http500Response  extends AbstractResponse {
+public class HttpErrorResponse  extends AbstractResponse {
 
+	private Logger logger = LoggerFactory.getLogger(HttpErrorResponse.class);
 	private String message;
 	private Throwable exception;
 	
-	public Http500Response(Throwable e) {
+	public HttpErrorResponse(Throwable e) {
 		this(null, e);
 	}
 	
-	public Http500Response(String message, Throwable e) {
+	public HttpErrorResponse(String message, Throwable e) {
 		super(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 		this.exception = e;
 		this.message = message == null ? e.getMessage() : message;
@@ -48,7 +52,7 @@ public class Http500Response  extends AbstractResponse {
 				w.write("<h2>" + message + "</h2>");
 			}
 		} catch (IOException e) {
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		} finally {
 			if (is != null) {
 				try {

@@ -1,0 +1,38 @@
+<#include "/common/top.html">
+
+<div id="BackLink">
+	<a href="${ url('.CatalogAction:index') }">
+		Return to Main Menu
+	</a>
+</div>
+
+<div id="Catalog">
+
+<table>
+	<tr>
+		<th>&nbsp;</th>
+		<th>Product ID</th>
+		<th>Name</th>
+	</tr>
+	<#list products as product>
+	<tr>
+		<td>
+			<a href="${ urli('.CatalogAction:index', [product.categoryId, product.productId]) }">
+			${product.productId}
+			</a>
+		</td>
+		<td>${product.name}</td>
+	</tr>
+	</#list>
+	<tr>
+		<td></td>
+	</tr>
+
+</table>
+
+</div>
+<#include "/common/bottom.html">
+
+
+
+

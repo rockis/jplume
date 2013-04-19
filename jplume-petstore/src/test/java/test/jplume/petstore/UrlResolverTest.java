@@ -54,5 +54,6 @@ public class UrlResolverTest {
 		URLReverser ur = new URLReverser(URLResolveProvider.create(Settings.get("ROOT_URLCONF")));
 //		System.out.println(ur.reverse(".CatalogAction", "index"));
 		System.out.println(ur.reverse(".CatalogAction", "index", new String[]{"FISH"}));
+		System.out.println(ur.reverse(".CatalogAction", "index", new String[]{"FISH", "aa"}));
 	}
 }

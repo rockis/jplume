@@ -15,20 +15,21 @@ import org.junit.Before;
 import org.junit.Test;
 
 import test.jplume.HttpServletResponseAdapter;
+import test.jplume.JPlumeTester;
 import test.jplume.ServletContextAdapter;
 
-public class FreemarkerTest {
+public class FreemarkerTester extends JPlumeTester {
 
 	@Before
 	public void setUp() throws Exception {
-		Settings.initalize("jplume-test.json");
+		super.setUp();
 		Environ.setContext(new ServletContextAdapter());
 	}
 
 	@Test
 	public void test() {
 		TemplateEngine engine = TemplateEngine.get();
-		Response resp = engine.render(FreemarkerTest.class, "test.html");
+		Response resp = engine.render(FreemarkerTester.class, "test.html");
 		ByteArrayOutputStream bos = new ByteArrayOutputStream();
 		final PrintWriter pw = new PrintWriter(bos);
 		resp.apply(new HttpServletResponseAdapter(){

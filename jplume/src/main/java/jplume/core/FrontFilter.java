@@ -15,6 +15,7 @@ import jplume.conf.ObjectFactory;
 import jplume.conf.InvalidConfigException;
 import jplume.conf.Settings;
 import jplume.conf.URLResolveProvider;
+import jplume.conf.URLReverser;
 import jplume.http.HttpRequest;
 import jplume.http.Request;
 import jplume.http.Response;
@@ -42,7 +43,10 @@ public class FrontFilter implements Filter{
 				| ClassNotFoundException e) {
 			throw new ServletException("Couldn't create action factory", e);
 		}
-		this.dispatcher = new RequestDispatcher(URLResolveProvider.create(Settings.get("ROOT_URLCONF")));
+		URLResolveProvider urp = URLResolveProvider.create(Settings.get("ROOT_URLCONF"));
+		Environ.setUrlReverser(new URLReverser(urp));
+		
+		this.dispatcher = new RequestDispatcher(urp);
 	}
 	
 	public void doFilter(ServletRequest _req, ServletResponse _resp,

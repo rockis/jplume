@@ -1,0 +1,58 @@
+<#include "/common/top.html">
+
+
+<div id="BackLink">
+	<a href="${ urli('.CatalogAction:index', [ category.categoryId ]) }">
+	Return to ${ category.name }
+	</a>
+</div>
+
+<div id="Catalog">
+
+<h2>${ product.name }</h2>
+
+<table>
+	<tr>
+		<th>Item ID</th>
+		<th>Product ID</th>
+		<th>Description</th>
+		<th>List Price</th>
+		<th>&nbsp;</th>
+	</tr>
+	<#list items as item>
+		<tr>
+			<td>
+				<a href="${ urli('.CatalogAction:index', [category.categoryId, product.productId, item.itemId]) }">
+				${item.itemId}
+				</a>
+			</td>
+			<td>${item.product.productId}</td>
+			<td>${item.attribute1?default('')} ${item.attribute2?default('')} ${item.attribute3?default('')}
+			${item.attribute4?default('')} ${item.attribute5?default('')} ${product.name}</td>
+			<td>${item.listPrice?string('$#,##0.00')}</td>
+			<td>
+				<button onclick="">Add to Cart</button>
+				<#--
+				<stripes:link class="Button"
+					beanclass="org.mybatis.jpetstore.web.actions.CartActionBean"
+					event="addItemToCart">
+					<stripes:param name="workingItemId" value="${item.itemId}" />
+	        	
+	        </stripes:link>
+	        	-->
+        	</td>
+		</tr>
+	</#list>
+	<tr>
+		<td>
+		</td>
+	</tr>
+</table>
+
+</div>
+
+<#include "/common/bottom.html">
+
+
+
+
