@@ -12,7 +12,7 @@ import jplume.core.Environ;
 
 public class HttpResponse extends AbstractResponse {
 
-	private InputStream content = null;
+	protected InputStream content = null;
 	
 	
 	/**
@@ -43,6 +43,10 @@ public class HttpResponse extends AbstractResponse {
 	
 	public static Response create(int status, String content) {
 		return new HttpResponse(status, new ByteArrayInputStream(content.getBytes()));
+	}
+	
+	public static Response create(int status, String content, String contentType) {
+		return new HttpResponse(status, new ByteArrayInputStream(content.getBytes()), contentType);
 	}
 	
 	public static Response ok(String content) {

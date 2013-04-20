@@ -2,6 +2,7 @@ package jplume.view;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -13,6 +14,25 @@ public class ArgumentBuilder {
 	private List<PathIndexedArgument> pathIndexedArgs = new ArrayList<>();
 	private List<PathNamedArgument> pathNamedArgs = new ArrayList<>();
 	private List<QueryArgument> querydArgs = new ArrayList<>();
+
+	private boolean hasFormArg = false;
+	
+	Object[] build(Request request, String[] indexedVars, Map<String, String> namedVars) {
+		List<Object> args = new LinkedList<>();
+		if (pathNamedArgs.size() > 0) {
+			for (PathNamedArgument arg : pathNamedArgs) {
+				args.add(arg.get(namedVars));
+			}
+		}else{
+			for (PathIndexedArgument arg : pathIndexedArgs) {
+				args.add(arg.get(indexedVars));
+			}
+		}
+		for (QueryArgument arg : querydArgs) {
+			args.add(arg.get(request));
+		}
+		return args.toArray(new Object[0]);
+	}
 	
 	void addArgument(Argument arg){
 		if (arg instanceof PathIndexedArgument){
@@ -24,6 +44,32 @@ public class ArgumentBuilder {
 		}else{
 			throw new IllegalStateException("Unsupported argument type");
 		}
+	}
+	
+	public boolean hasFormArg() {
+		return hasFormArg;
+	}
+	
+	public void setHasFormArg(boolean hasFormArg) {
+		this.hasFormArg = hasFormArg;
+	}
+	
+	public Class<?>[] getArgumentTypes() {
+		List<Class<?>> types = new LinkedList<>();
+		List<Object> args = new LinkedList<>();
+		if (pathNamedArgs.size() > 0) {
+			for (PathNamedArgument arg : pathNamedArgs) {
+				args.add(arg.type);
+			}
+		}else{
+			for (PathIndexedArgument arg : pathIndexedArgs) {
+				args.add(arg.type);
+			}
+		}
+		for (QueryArgument arg : querydArgs) {
+			types.add(arg.type);
+		}
+		return args.toArray(new Class<?>[0]);
 	}
 	
 	public boolean validate(String[] indexedVars, Map<String, String> namedVars) {
@@ -40,23 +86,6 @@ public class ArgumentBuilder {
 		return true;
 	}
 	
-	Object[] build(Request request, String[] indexedVars, Map<String, String> namedVars) {
-		Object[] args = new Object[pathIndexedArgs.size() + pathNamedArgs.size() + querydArgs.size() ];
-		int i = 0;
-		if (pathNamedArgs.size() == 0) {
-			for (PathIndexedArgument arg : pathIndexedArgs) {
-				args[i++] = arg.get(indexedVars);
-			}
-		}else{
-			for (PathNamedArgument arg : pathNamedArgs) {
-				args[i++] = arg.get(namedVars);
-			}
-		}
-		for (QueryArgument arg : querydArgs) {
-			args[i++] = arg.get(request);
-		}
-		return args;
-	}
 
 	public List<PathIndexedArgument> getPathIndexedArgs() {
 		return Collections.unmodifiableList(pathIndexedArgs);
@@ -163,4 +192,5 @@ public class ArgumentBuilder {
 			return convert(val);
 		}
 	}
+	
 }

@@ -5,6 +5,7 @@ import java.lang.reflect.Method;
 
 import jplume.conf.IllegalURLPattern;
 import jplume.utils.ClassUtil;
+import jplume.view.annotations.Form;
 import jplume.view.annotations.PathVar;
 import jplume.view.annotations.QueryVar;
 import jplume.view.annotations.ViewMethod;
@@ -95,9 +96,11 @@ public class ViewFactory {
 					String defval = anno.defval();
 					argBuilder.addArgument(new QueryArgument(
 							argumentTypes[argIndex], name, defval));
+				} else if (annotation instanceof Form) {
+					argBuilder.setHasFormArg(true);
 				} else {
 					throw new ViewException(
-							"Annotation of view method's argument must be PathVar or QueryVar");
+							"Annotation of view method's argument must be PathVar, QueryVar or Form");
 				}
 			} else {
 				throw new ViewException("Invalid Argument:" + argIndex

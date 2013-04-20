@@ -1,17 +1,27 @@
 <#include "/common/top.html">
 
+<link rel="stylesheet" href="/js/jquery-nform/jquery-nform.css" type="text/css">
+
 <div id="Catalog">
 
-	<form action="${ url('.AccountAction:check') }" method="post">
+	<form id="loginform" class="nform" action="${ url('.AccountAction:check') }" method="post">
 	<p>Please enter your username and password.</p>
 	<p>Username:<input type="text" name="username" value="jplume" /> <br />
 	Password:<input type="text" name="password" value="petstore" /></p>
-	<input type="submit" name="signon" value="Login" />
+	<input type="button" name="signon" value="Login" onclick="$('#loginform').nform('submit')"/>
 	</form>
 	Need a user name and password? 
 	<a href="${ url('.AccountAction:register') }">
 	Register Now!
 	</a>
 </div>
-
+<script type="text/javascript" src="/js/jquery.js"></script>
+<script type="text/javascript" src="/js/jquery-nform.js"></script>
+<script>
+$('#loginform').nform({
+    onSuccess: function() {
+        document.location.href = "${ url('.CatalogAction:index') }";
+    }
+});
+</script>
 <#include "/common/bottom.html">

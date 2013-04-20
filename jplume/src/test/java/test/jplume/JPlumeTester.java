@@ -1,5 +1,6 @@
 package test.jplume;
 
+import jplume.conf.ObjectFactory;
 import jplume.conf.Settings;
 import jplume.conf.URLResolveProvider;
 import jplume.conf.URLReverser;
@@ -16,6 +17,7 @@ public abstract class JPlumeTester {
 		Settings.initalize("jplume-test.json");
 		urp =  URLResolveProvider.create(Settings.get("ROOT_URLCONF"));
 		Environ.setUrlReverser(new URLReverser(urp));
+		Environ.setActionFactory((ObjectFactory)Class.forName(Settings.get("ACTION_FACTORY")).newInstance());
 	}
 
 

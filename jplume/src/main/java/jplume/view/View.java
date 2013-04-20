@@ -1,17 +1,23 @@
 package jplume.view;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import jplume.core.Environ;
+import jplume.http.HttpJsonResponse;
 import jplume.http.HttpResponse;
 import jplume.http.Request;
 import jplume.http.Response;
+import jplume.validation.Validator;
 
 public class View {
 
@@ -50,19 +56,31 @@ public class View {
 					&& Arrays.binarySearch(requireMethods, request.getMethod().toLowerCase()) < 0) {
 				return HttpResponse.forbidden();
 			}
-			Object action = null;
+			Object object = null;
 			if ((method.getModifiers() & Modifier.STATIC) == 0) { // method is not static method
-				action = Environ.createInstanceOf(this.method.getDeclaringClass());
+				object = Environ.createInstanceOf(this.method.getDeclaringClass());
 			}
-			
 			Object[] args = argBuilder.build(request, indexedVars, namedVars);
 			
-			Response resp = null;
+			Response resp = validate(object, request, args);
+			if (resp != null) {
+				return resp;
+			}
+			
 			Class<?> returnType = this.method.getReturnType();
-			if (returnType.equals(String.class)) {
-				resp = HttpResponse.ok((String) this.method.invoke(action, args));
-			} else if (Response.class.isAssignableFrom(returnType)) {
-				resp = (Response) this.method.invoke(action, args);
+			if (Response.class.isAssignableFrom(returnType)) {
+				List<Object> arglist = new LinkedList<>(Arrays.asList(args));
+				if (argBuilder.hasFormArg()) {
+					arglist.add(null);
+				}
+				resp = (Response) this.method.invoke(object, arglist.toArray(new Object[0]));
+			} else {
+				Object retval = this.method.invoke(object, args);
+				if (retval != null) {
+					return HttpResponse.ok(retval.toString());
+				}else{
+					return HttpResponse.ok("Null");
+				}
 			}
 			return resp;
 		} catch (Exception e) {
@@ -72,6 +90,36 @@ public class View {
 			}
 			throw new ViewException(except);
 		}
+	}
+	
+	protected Response validate(Object object, Request request, Object[] args) {
+		String validateMethodName = "validate" + StringUtils.capitalize(method.getName());
+		try {
+			List<Class<?>> argumentTypes = new LinkedList<>(Arrays.asList(argBuilder.getArgumentTypes()));
+			argumentTypes.add(Request.class);
+			argumentTypes.add(Validator.class);
+			Method validateMethod = method.getDeclaringClass().getMethod(validateMethodName, argumentTypes.toArray(new Class<?>[0]));
+			if (validateMethod != null) {
+				List<Object> arglist = new LinkedList<>(Arrays.asList(args));
+				arglist.add(request);
+				
+				Validator validator = new Validator(request);
+				arglist.add(validator);
+				Response res = (Response)validateMethod.invoke(object, arglist.toArray(new Object[0]));
+				if (res != null) {
+					return res;
+				}
+				if (validator.hasError()) {
+					return HttpJsonResponse.error(validator.getErrors(), validator.getFieldErrors());
+				}
+				return null;
+			}
+			return null;
+		} catch (NoSuchMethodException e) {
+			return null;
+		} catch (SecurityException | IllegalAccessException | IllegalArgumentException |InvocationTargetException e) {
+			throw new RuntimeException(e);
+		} 
 	}
 
 }

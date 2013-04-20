@@ -1,11 +1,14 @@
 package jplume.validation;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 import jplume.http.Request;
@@ -14,7 +17,7 @@ public class Validator {
 
 	protected List<String> errors = new LinkedList<>();
 	
-	protected Map<String, String> fieldErrors = new HashMap<>();
+	protected Map<String, List<String>> fieldErrors = new HashMap<>();
 	
 	protected final Request request;
 	
@@ -31,7 +34,10 @@ public class Validator {
 	}
 	
 	public void addFieldError(String name, String message) {
-		fieldErrors.put(name, message);
+		if (!fieldErrors.containsKey(name)) {
+			fieldErrors.put(name, new ArrayList<String>());
+		}
+		fieldErrors.get(name).add(message);
 	}
 	
 	public void clearErrors() {
@@ -52,12 +58,12 @@ public class Validator {
 		return Collections.unmodifiableList(errors);
 	}
 
-	public Map<String, String> getFieldErrors() {
+	public Map<String, List<String>> getFieldErrors() {
 		return Collections.unmodifiableMap(fieldErrors);
 	}
 	
 	public boolean require(String name) {
-		return fieldValue(name) == null && !fieldValue(name).isEmpty();
+		return fieldValue(name) != null && !fieldValue(name).isEmpty();
 	}
 	
 	public boolean require(String name, String errormsg) {
@@ -97,7 +103,7 @@ public class Validator {
 		return format(name, "^[\\d]+$");
 	}
 	
-	public boolean numeric(String name, String regex, String errormsg) {
+	public boolean numeric(String name, String errormsg) {
 		if (!numeric(name)) {
 			addFieldError(name, errormsg);
 			return false;
@@ -106,7 +112,8 @@ public class Validator {
 	}
 	
 	public boolean include(String name, String[] include) {
-		return Arrays.binarySearch(include, name) >= 0;
+		Set<String> inc = new HashSet<>(Arrays.asList(include));
+		return inc.contains(fieldValue(name));
 	}
 	
 	public boolean include(String name, String[] include, String errormsg) {
@@ -118,7 +125,8 @@ public class Validator {
 	}
 	
 	public boolean exclude(String name, String[] exclude) {
-		return Arrays.binarySearch(exclude, name) < 0;
+		Set<String> inc = new HashSet<>(Arrays.asList(exclude));
+		return !inc.contains(fieldValue(name));
 	}
 	
 	public boolean exclude(String name, String[] exclude, String errormsg) {
