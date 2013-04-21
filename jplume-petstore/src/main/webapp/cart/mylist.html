@@ -1,4 +1,4 @@
-<c:if test="${!empty accountBean.myList}">
+<#if request.session.user.myList?size gt 0>
 	<p>Pet Favorites <br />
 	Shop for more of your favorite pets here.</p>
 	<ul>
@@ -12,4 +12,4 @@
 		</c:forEach>
 	</ul>
 
-</c:if>
+</#if>

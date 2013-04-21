@@ -1,0 +1,29 @@
+<#include "/common/top.html">
+
+<div id="Catalog">
+
+<form id="profileForm" action="${ url('.AccountAction:updateProfile')}" method="post">
+	<h3>User Information</h3>
+
+	<table>
+		<tr>
+			<td>User ID:</td>
+			<td>${account.username}</td>
+		</tr>
+		<tr>
+			<td>New password:</td>
+			<td><input type="password" name="password" value=""/></td>
+		</tr>
+		<tr>
+			<td>Repeat password:</td>
+			<td><input type="password" name="repeatedPassword" value=""/></td>
+		</tr>
+	</table>
+    <#include "/account/accountinfo.html">
+    
+	<stripes:submit name="editAccount" value="Save Account Information" />
+
+</form>
+<a href="${ url('.OrderAction:list') }">My Orders</a>
+
+<#include "/common/bottom.html">

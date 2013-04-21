@@ -19,7 +19,7 @@ public class TemplateResponse extends AbstractResponse {
 	private Object context;
 	
 	public TemplateResponse(Template template, String contentType, Object context) {
-		super(200);
+		super(HttpServletResponse.SC_OK);
 		this.setCharset(template.getEncoding());
 		this.setContentType(contentType);
 		this.ftlTemplate = template;

@@ -10,7 +10,6 @@ import jplume.conf.URLReverser;
 import jplume.conf.URLVisitor;
 import jplume.view.View;
 
-import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -19,18 +18,6 @@ interface Visitor {
 }
 public class UrlResolverTester extends JPlumeTester {
 
-
-	@Before
-	public void setUp() throws Exception {
-		
-//		URLResolveProvider provider = URLResolveProvider.create(Settings.get("ROOT_URLCONF"));
-//		provider.visit("", new URLVisitor<String>() {
-//			public String visit(Pattern pattern, String[] indexedVars, Map<String, String> namedVars, ViewMethod method, boolean matched) {
-//				System.out.println(pattern.toString());
-//				return null;
-//			}
-//		});
-	}
 
 	private void test(String path, String methodName, final Visitor visitor) {
 		View result = urp.visit(path, new URLVisitor<View>() {

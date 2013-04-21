@@ -1,5 +1,6 @@
 package jplume.http;
 
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,6 +12,8 @@ public abstract class AbstractResponse implements Response{
 	
 	protected List<String[]> headers = new ArrayList<String[]>();
 	
+	protected InputStream content = null;
+	
 	protected int contentLength  = 0;
 	
 	protected String contentType = null;
@@ -21,7 +24,7 @@ public abstract class AbstractResponse implements Response{
 		this.status = code;
 	}
 
-	public int getCode() {
+	public int getStatus() {
 		return status;
 	}
 

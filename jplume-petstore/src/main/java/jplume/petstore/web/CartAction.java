@@ -1,14 +1,20 @@
 package jplume.petstore.web;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import jplume.core.Environ;
+import jplume.http.HttpJsonResponse;
 import jplume.http.Response;
 import jplume.petstore.domain.Cart;
 import jplume.petstore.domain.CartItem;
 import jplume.petstore.domain.Item;
 import jplume.petstore.service.CatalogService;
 import jplume.view.annotations.Prefix;
+import jplume.view.annotations.QueryVar;
 import jplume.view.annotations.ViewMethod;
 
 @Service
@@ -20,24 +26,15 @@ public class CartAction extends AbstractAction {
 	@Autowired
 	private transient CatalogService catalogService;
 
-	private Cart cart = new Cart();
-	private String workingItemId;
-
-	public Cart getCart() {
-		return cart;
+	private Cart getCart() {
+		return (Cart)Environ.getRequest().getSession().get("cart");
 	}
-
-	public void setCart(Cart cart) {
-		this.cart = cart;
-	}
-
-	public void setWorkingItemId(String workingItemId) {
-		this.workingItemId = workingItemId;
-	}
-
+	
 	@ViewMethod(regex = "^$")
 	public Response index() {
-		return render("cart.html");
+		Map<String, Object> data = new HashMap<String, Object>();
+		data.put("cart", Environ.getRequest().getSession().get("cart"));
+		return render("/cart/index.html", data);
 	}
 
 	@ViewMethod(regex = "^/checkout$")
@@ -46,19 +43,16 @@ public class CartAction extends AbstractAction {
 	}
 
 	@ViewMethod(regex = "^/add$")
-	public Response add() {
-		if (cart.containsItemId(workingItemId)) {
-			cart.incrementQuantityByItemId(workingItemId);
+	public Response add(@QueryVar(name="itemId", defval="") String itemId) {
+		Cart cart = getCart();
+		if (cart.containsItemId(itemId)) {
+			cart.incrementQuantityByItemId(itemId);
 		} else {
-			// isInStock is a "real-time" property that must be updated
-			// every time an item is added to the cart, even if other
-			// item details are cached.
-			boolean isInStock = catalogService.isItemInStock(workingItemId);
-			Item item = catalogService.getItem(workingItemId);
+			boolean isInStock = catalogService.isItemInStock(itemId);
+			Item item = catalogService.getItem(itemId);
 			cart.addItem(item, isInStock);
 		}
-
-		return index();
+		return HttpJsonResponse.ok();
 	}
 
 //	public Response remove() {
@@ -97,8 +91,7 @@ public class CartAction extends AbstractAction {
 
 	@ViewMethod(regex="^/clear$")
 	public void clear() {
-		cart = new Cart();
-		workingItemId = null;
+		Environ.getRequest().getSession().remove("cart");
 	}
 
 }

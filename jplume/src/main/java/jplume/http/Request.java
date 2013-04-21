@@ -16,6 +16,8 @@ public interface Request {
 	
 	public String getParam(String key);
 	
+	public Map<String, String> getParams();
+	
 	public String getCharacterEncoding();
 
 	public int getContentLength();

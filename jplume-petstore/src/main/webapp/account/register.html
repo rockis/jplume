@@ -1,10 +1,14 @@
 <#include "/common/top.html">
+
+<link rel="stylesheet" href="/js/jquery-nform/jquery-nform.css" type="text/css">
+
 <div id="Catalog">
-	<form action="${ url('.AccountAction:registerAccount')  }" method="POST" autocomplete="off">
+
+	<form class="nform" id="registerForm" action="${ url('.AccountAction:doRegister')  }" method="POST" autocomplete="off">
 
 	<h3>User Information</h3>
 
-	<table>
+	<table> 
 		<tr>
 			<td>User ID:</td>
 			<td><input type="text" name="username" /></td>
@@ -20,10 +24,19 @@
 	</table>
 	<#include "accountinfo.html">
 
-	<button>Save Account Information</button> 
+	<button type="button" onclick="$('#registerForm').nform('submit')">Save Account Information</button> 
 
 	</form>	
 </div>
 
+<script type="text/javascript" src="/js/jquery.js"></script>
+<script type="text/javascript" src="/js/jquery-nform.js"></script>
+<script>
+$('#registerForm').nform({
+    onSuccess: function() {
+        document.location.href = "${ url('.CatalogAction:index') }";
+    }
+});
+</script>
 
 <#include "/common/bottom.html">

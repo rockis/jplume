@@ -1,5 +1,12 @@
 package jplume.petstore.web;
 
+import java.lang.reflect.InvocationTargetException;
+import java.util.HashMap;
+import java.util.Map;
+
+import net.sf.json.JSONObject;
+
+import org.apache.commons.beanutils.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -9,6 +16,7 @@ import jplume.http.HttpResponse;
 import jplume.http.Request;
 import jplume.http.Response;
 import jplume.petstore.domain.Account;
+import jplume.petstore.domain.Cart;
 import jplume.petstore.service.AccountService;
 import jplume.validation.Validator;
 import jplume.view.annotations.Prefix;
@@ -27,112 +35,23 @@ public class AccountAction extends AbstractAction {
 	@Autowired
 	private transient AccountService accountService;
 
-	// @SpringBean
-	// private transient CatalogService catalogService;
-	//
-	// private Account account = new Account();
-	// private List<Product> myList;
-	// private boolean authenticated;
-	//
-	// static {
-	// List<String> langList = new ArrayList<String>();
-	// langList.add("english");
-	// langList.add("japanese");
-	// LANGUAGE_LIST = Collections.unmodifiableList(langList);
-	//
-	// List<String> catList = new ArrayList<String>();
-	// catList.add("FISH");
-	// catList.add("DOGS");
-	// catList.add("REPTILES");
-	// catList.add("CATS");
-	// catList.add("BIRDS");
-	// CATEGORY_LIST = Collections.unmodifiableList(catList);
-	// }
-	//
-	// public Account getAccount() {
-	// return this.account;
-	// }
-	//
-	// public String getUsername() {
-	// return account.getUsername();
-	// }
-	//
-	// @Validate(required=true, on={"signon", "newAccount", "editAccount"})
-	// public void setUsername(String username) {
-	// account.setUsername(username);
-	// }
-	//
-	// public String getPassword() {
-	// return account.getPassword();
-	// }
-	//
-	// @Validate(required=true, on={"signon", "newAccount", "editAccount"})
-	// public void setPassword(String password) {
-	// account.setPassword(password);
-	// }
-	//
-	// public List<Product> getMyList() {
-	// return myList;
-	// }
-	//
-	// public void setMyList(List<Product> myList) {
-	// this.myList = myList;
-	// }
-	//
-	// public List<String> getLanguages() {
-	// return LANGUAGE_LIST;
-	// }
-	//
-	// public List<String> getCategories() {
-	// return CATEGORY_LIST;
-	// }
-	//
-	// public Resolution newAccountForm() {
-	// return new ForwardResolution(NEW_ACCOUNT);
-	// }
-	//
-	// public Resolution newAccount() {
-	// accountService.insertAccount(account);
-	// account = accountService.getAccount(account.getUsername());
-	// myList =
-	// catalogService.getProductListByCategory(account.getFavouriteCategoryId());
-	// authenticated = true;
-	// return new RedirectResolution(CatalogActionBean.class);
-	// }
-	//
-	// public Resolution editAccountForm() {
-	// return new ForwardResolution(EDIT_ACCOUNT);
-	// }
-	//
-	// public Resolution editAccount() {
-	// accountService.updateAccount(account);
-	// account = accountService.getAccount(account.getUsername());
-	// myList =
-	// catalogService.getProductListByCategory(account.getFavouriteCategoryId());
-	// return new RedirectResolution(CatalogActionBean.class);
-	// }
-	//
-	// @DefaultHandler
-	// public Resolution signonForm() {
-	// return new ForwardResolution(SIGNON);
-	// }
-	//
-	@ViewMethod(regex="^/login$")
-	public Response login() {
+	@ViewMethod(regex="^/signin$")
+	public Response signIn() {
 		Request request  = Environ.getRequest();
 		System.out.println(request.getSession().get("user"));
-		return render("/account/login.html");
+		return render("/account/signin.html");
 	}
 	
-	@ViewMethod(regex="^/login/do$")
-	public Response check() {
+	@ViewMethod(regex="^/signin/do$")
+	public Response doSignIn() {
 		Request request  = Environ.getRequest();
 		Account acc = accountService.getAccount(request.getParam("username"), request.getParam("password"));
 		request.getSession().put("user", acc);
-		return HttpJsonResponse.ok("");
+		request.getSession().put("cart", new Cart());
+		return HttpJsonResponse.ok();
 	}
 	
-	public void validateCheck(Request request, Validator validator) {
+	public void validateDoSignIn(Request request, Validator validator) {
 		if (validator.require("username", "Missing username. Please correct and try again.")
 				&& validator.require("password", "Missing password. Please correct and try again.")) {
 			Account acc = accountService.getAccount(request.getParam("username"), request.getParam("password"));
@@ -148,17 +67,44 @@ public class AccountAction extends AbstractAction {
 	}
 	
 	@ViewMethod(regex="^/register/do$")
-	public Response registerAccount() {
-		return render("/account/register.html");
+	public Response doRegister() {
+		Request req = Environ.getRequest();
+		Account acc = new Account();
+		try {
+			System.out.println(req.getParam("languagePrefrence"));
+			BeanUtils.populate(acc, req.getParams());
+		} catch (IllegalAccessException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InvocationTargetException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		System.out.println(acc.getLanguagePreference());
+		accountService.insertAccount(acc);
+		return HttpJsonResponse.ok();
+	}
+	
+	public void validateDoRegister(Request request, Validator validator) {
+		
 	}
 	
 	@ViewMethod(regex="^/profile$")
 	public Response profile() {
+		Request request = Environ.getRequest();
+		Account account = (Account)request.getSession().get("user");
+		Map<String, Object> data = new HashMap<>();
+		data.put("account", account);
+		return render("/account/profile.html", data);
+	}
+		
+	@ViewMethod(regex="^/profile/update$")
+	public Response updateProfile() {
 		return HttpResponse.ok("ok");
 	}
 	
-	@ViewMethod(regex="^/logout$")
-	public Response logout() {
+	@ViewMethod(regex="^/signout$")
+	public Response signOut() {
 		Environ.getRequest().getSession().clear();
 		return HttpResponse.redirect(CatalogAction.class, "index");
 	}

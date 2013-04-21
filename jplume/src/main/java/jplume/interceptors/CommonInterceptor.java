@@ -49,15 +49,15 @@ public class CommonInterceptor extends InterceptorAdapter {
 		
 		if (debug) {
 			long duration = new Date().getTime() - reqTime.get();
-			String log = String.format(printFormat, new Date(), request.getMethod(), request.getRequestURL(), response.getCode(), duration, response.getContentLength());
-			if (response.getCode() == 200)
+			String log = String.format(printFormat, new Date(), request.getMethod(), request.getRequestURL(), response.getStatus(), duration, response.getContentLength());
+			if (response.getStatus() == 200)
 				System.out.println(log);
 			else
 				System.err.println(log);
 		}
 		
 		if (errorHandler != null) {
-			int code = response.getCode();
+			int code = response.getStatus();
 			switch(code) {
 			case 403:
 				return errorHandler.handle403(request);

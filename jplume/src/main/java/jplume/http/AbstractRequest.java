@@ -1,6 +1,7 @@
 package jplume.http;
 
 import java.util.Collections;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -44,6 +45,16 @@ public abstract class AbstractRequest implements Request {
 			return defval;
 		}
 		return (T)Converter.convert(defval.getClass(), val);
+	}
+	
+	@Override
+	public Map<String, String> getParams() {
+		Map<String, String> params = new HashMap<>();
+		for(Enumeration<String> e = rawRequest.getParameterNames(); e.hasMoreElements();) {
+			String key = e.nextElement();
+			params.put(key, rawRequest.getParameter(key));
+		}
+		return params;
 	}
 
 	@Override

@@ -102,4 +102,7 @@ public class TestRequest implements Request {
 	}
 
 
+	public Map<String, String> getParams() {
+		return null;
+	}
 }

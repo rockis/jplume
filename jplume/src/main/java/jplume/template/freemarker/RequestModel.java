@@ -37,6 +37,11 @@ public class RequestModel implements Request {
 		return getRequest().getParam(key);
 	}
 
+	@Override
+	public Map<String, String> getParams() {
+		return getRequest().getParams();
+	}
+
 	public String getCharacterEncoding() {
 		return getRequest().getCharacterEncoding();
 	}

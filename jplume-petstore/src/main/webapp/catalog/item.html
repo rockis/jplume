@@ -39,12 +39,21 @@
 
 	<tr>
 		<td>
-			<button onclick="">Add to Cart</button>
+			<button onclick="addToCart('${ item.itemId }')">Add to Cart</button>
 		</td>
 	</tr>
 </table>
 
 </div>
+
+<script type="text/javascript" src="/js/jquery.js"></script>
+
+<script>
+function addToCart(itemId) {
+	var url = "${ url('.CartAction:add') }?itemId=" + itemId;
+	$.post(url);
+}
+</script>
 <#include "/common/bottom.html">
 
 

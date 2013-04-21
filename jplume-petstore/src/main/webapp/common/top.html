@@ -35,10 +35,11 @@
 	 </a>
     <img align="middle" src="${base}/images/separator.gif" /> 
     <#if !request.session.user?exists >
-   		<a href="${ url('.AccountAction:login') }">Sign In</a>
+   		<a href="${ url('.AccountAction:signIn') }">Sign In</a>
    	 <#else>
-   	 	<a href="${ url('.AccountAction:logout') }">Sign Out</a>
-   	 	<a href="${ url('.AccountAction:profile') }">My Account</a>
+   	 	<a href="${ url('.AccountAction:signOut') }">Sign Out</a>
+   	<img align="middle" src="${base}/images/separator.gif" /> 
+     	<a href="${ url('.AccountAction:profile') }">My Account</a>
     </#if>
 	 <img align="middle" src="${base}/images/separator.gif" /> 
 	 <a href="${ url('.IndexAction:help') }">?</a></div>

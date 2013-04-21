@@ -4,9 +4,7 @@ import javax.servlet.http.HttpServletResponse;
 
 public interface Response {
 
-	public int getCode();
-	
-	public void apply(HttpServletResponse resp);
+	public int getStatus();
 	
 	public void addHeader(String key, String value);
 	
@@ -15,4 +13,7 @@ public interface Response {
 	public int getContentLength();
 	
 	public String getContentType();
+
+	public void apply(HttpServletResponse resp);
+	
 }

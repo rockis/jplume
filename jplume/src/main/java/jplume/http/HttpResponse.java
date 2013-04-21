@@ -12,7 +12,6 @@ import jplume.core.Environ;
 
 public class HttpResponse extends AbstractResponse {
 
-	protected InputStream content = null;
 	
 	
 	/**
@@ -98,7 +97,6 @@ public class HttpResponse extends AbstractResponse {
 			if (contentLength > 0) {
 				resp.setContentLength(contentLength);
 			}
-			
 			if (this.content != null) {
 				byte[] buffer = new byte[1024];
 				while(this.content.read(buffer) > 0) {

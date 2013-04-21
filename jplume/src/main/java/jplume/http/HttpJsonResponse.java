@@ -47,6 +47,12 @@ public class HttpJsonResponse extends AbstractResponse {
 		return create(errResp);
 	}
 	
+	public static HttpJsonResponse ok() {
+		Map<String, Object> errResp = new HashMap<String, Object>();
+		errResp.put("result", "ok");
+		return create(errResp);
+	}
+	
 	/**
 	 * @param errors
 	 * @param fieldErrors
