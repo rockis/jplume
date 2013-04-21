@@ -1,11 +1,14 @@
 package jplume.http;
 
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletResponse;
+
+import net.sf.json.JSONObject;
 
 import jplume.conf.Settings;
 import jplume.core.Environ;
@@ -16,16 +19,14 @@ public class HttpResponse extends AbstractResponse {
 	
 	/**
 	 * 
-	 * @param status: http status code
-	 * @param mimeType: eg. text/html, application/json
-	 * @param content: content
-	 * @param contentType: eg. text/html; charset=utf-8
 	 */
-	public HttpResponse(int status, InputStream content, String contentType, String charset) {
+	private static final long serialVersionUID = -4155308848218196212L;
+
+	public HttpResponse(int status, InputStream content, String contentType, String encoding) {
 		super(status);
 		this.content = content;
-		this.setContentType(contentType);
-		this.setCharset(charset);
+		this.contentType = contentType;
+		this.encoding = encoding;
 	}
 	
 	public HttpResponse(int status) {
@@ -53,19 +54,23 @@ public class HttpResponse extends AbstractResponse {
 	}
 	
 	public static Response redirect(String url) {
-		return new HttpRedirectResponse(url);
+		HttpResponse resp = new HttpResponse(302);
+		if (url.charAt(0) == '/') {
+		}
+		resp.addHeader("Location", url);
+		return resp;
 	}
 	
 	public static Response redirect(Class<?> clazz, String methodName) {
-		return new HttpRedirectResponse(Environ.reverseURL(clazz, methodName));
+		return redirect(Environ.reverseURL(clazz, methodName));
 	}
 	
 	public static Response redirect(Class<?> clazz, String methodName, String[] pathVars) {
-		return new HttpRedirectResponse(Environ.reverseURL(clazz, methodName, pathVars));
+		return redirect(Environ.reverseURL(clazz, methodName, pathVars));
 	}
 	
 	public static Response redirect(Class<?> clazz, String methodName, Map<String, String> namedVars) {
-		return new HttpRedirectResponse(Environ.reverseURL(clazz, methodName, namedVars));
+		return redirect(Environ.reverseURL(clazz, methodName, namedVars));
 	}
 	
 	public static Response notModified(String mimeType) {
@@ -89,22 +94,41 @@ public class HttpResponse extends AbstractResponse {
 		return new HttpErrorResponse(message, e);
 	}
 	
-	@Override
-	public void apply(HttpServletResponse resp) {
-		try {
-			super.apply(resp);
-			
-			if (contentLength > 0) {
-				resp.setContentLength(contentLength);
-			}
-			if (this.content != null) {
-				byte[] buffer = new byte[1024];
-				while(this.content.read(buffer) > 0) {
-					resp.getOutputStream().write(buffer);
-				}
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
+	
+	public static Response json(String result, Object data) {
+		Map<String, Object> errResp = new HashMap<String, Object>();
+		errResp.put("result", result);
+		if (data != null) {
+			errResp.put("contents", data);
 		}
+		InputStream content = new ByteArrayInputStream(JSONObject.fromObject(errResp).toString().getBytes());
+		return new HttpResponse(200, content);
+		
+	}
+	/**
+	 * @return { 'result' : 'ok', 'contents' : ... }
+	 */
+	public static Response jsonOk(Object data) {
+		return json("ok", data);
+	}
+	
+	public static Response jsonOk() {
+		return jsonOk(null);
+	}
+	
+	/**
+	 * @param errors
+	 * @param fieldErrors
+	 * @return { 'result' : 'error', 'contents' : { 'errors' : ..., 'fieldErrors' : ... } }
+	 */
+	public static Response jsonError(List<String> errors, Map<String, List<String>> fieldErrors) {
+		Map<String, Object> data = new HashMap<>();
+		data.put("errors", errors);
+		data.put("fieldErrors", fieldErrors);
+		return json("error", data);
+	}
+	
+	public InputStream getContent() {
+		return content;
 	}
 }

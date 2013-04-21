@@ -1,6 +1,8 @@
 package jplume.http;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -16,7 +18,7 @@ public class HttpJsonResponse extends AbstractResponse {
 	public HttpJsonResponse(int code, JSONObject obj) {
 		super(code);
 		this.jsonObject = obj;
-		this.setContentType("application/json");
+		this.contentType = "application/json";
 	}
 	
 	public HttpJsonResponse(JSONObject obj) {
@@ -24,13 +26,8 @@ public class HttpJsonResponse extends AbstractResponse {
 	}
 	
 	@Override
-	public void apply(HttpServletResponse resp) {
-		try {
-			super.apply(resp);
-			resp.getWriter().write(jsonObject.toString());
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+	public InputStream getContent() {
+		return new ByteArrayInputStream(jsonObject.toString().getBytes());
 	}
 	
 	public static HttpJsonResponse create(Object obj) {

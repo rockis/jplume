@@ -1,6 +1,10 @@
 package jplume.core;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.Arrays;
+import java.util.Map;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -55,9 +59,31 @@ public class FrontFilter implements Filter{
 		Environ.setRequest(request);
 		
 		Response resp = dispatcher.dispatch(request);
-		resp.apply((HttpServletResponse)_resp);
-	}
+		
+		HttpServletResponse httpResp = (HttpServletResponse)_resp;
+		
+		httpResp.setStatus(resp.getStatus());
+		for(Map.Entry<String, String> entry : resp.getHeaders().entrySet()) {
+			httpResp.addHeader(entry.getKey(), entry.getValue());
+		}
+		httpResp.setContentType(resp.getContentType());
+		httpResp.setCharacterEncoding(resp.getEncoding());
+		if (resp.getContentLength() > 0)
+			httpResp.setContentLength(resp.getContentLength());
 
+		InputStream content = resp.getContent();
+		if (content != null) {
+			OutputStream os = httpResp.getOutputStream();
+			byte[] buf = new byte[1024];
+			int len = 0;
+			while( (len = content.read(buf)) > 0) {
+				os.write(buf, 0, len);
+			}
+			content.close();
+			os.close();
+		}
+	}
+	
 	public void destroy() {
 		
 	}

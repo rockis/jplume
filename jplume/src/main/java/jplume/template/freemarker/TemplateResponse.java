@@ -1,7 +1,9 @@
 package jplume.template.freemarker;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.Writer;
+import java.io.InputStream;
+import java.io.StringWriter;
 import java.util.Collections;
 
 import javax.servlet.http.HttpServletResponse;
@@ -14,19 +16,24 @@ import jplume.http.AbstractResponse;
 
 public class TemplateResponse extends AbstractResponse {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 5896753958056165409L;
+
 	private Template ftlTemplate;
 	
-	private Object context;
+	private Object data;
 	
-	public TemplateResponse(Template template, String contentType, Object context) {
+	public TemplateResponse(Template template, String contentType, Object data) {
 		super(HttpServletResponse.SC_OK);
-		this.setCharset(template.getEncoding());
-		this.setContentType(contentType);
+		this.encoding = template.getEncoding();
+		this.contentType = contentType;
 		this.ftlTemplate = template;
-		if (context == null) {
-			context = Collections.emptyMap();
+		if (data == null) {
+			data = Collections.emptyMap();
 		}
-		this.context = context;
+		this.data = data;
 	}
 
 	public TemplateResponse(Template template, Object context) {
@@ -34,16 +41,16 @@ public class TemplateResponse extends AbstractResponse {
 	}
 	
 	@Override
-	public void apply(HttpServletResponse resp) {
+	public InputStream getContent() {
 		try {
-			super.apply(resp);
-			Writer w = resp.getWriter();
-			ftlTemplate.process(context, w);
+			StringWriter w = new StringWriter();
+			ftlTemplate.process(data, w);
 			w.close();
+			return new ByteArrayInputStream(w.toString().getBytes());
 		} catch (IOException e) {
-			e.printStackTrace();
+			throw new IllegalStateException(e);
 		} catch (TemplateException e){
-			e.printStackTrace();
+			throw new IllegalStateException(e);
 		}
 	}
 }

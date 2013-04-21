@@ -1,0 +1,18 @@
+<#include "/common/top.html">
+
+<div id="Catalog">
+<form action="${ url('.OrderAction:submitOrder') }" method="post" id="orderForm">
+	<table>
+		<tr>
+			<th colspan=2>Payment Details</th>
+		</tr>
+		<#include "orderform.html">
+	</table>
+	<input type="checkbox" name="shippingAddressRequired" />
+    <button type="submit">Continue</button>
+</form>
+</div>
+
+<script type="text/javascript" src="/js/jquery.js"></script>
+<script type="text/javascript" src="/js/jquery-nform.js"></script>
+<#include "/common/bottom.html">

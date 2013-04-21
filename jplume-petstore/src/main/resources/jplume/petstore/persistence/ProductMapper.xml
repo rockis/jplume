@@ -10,6 +10,7 @@
     SELECT
       PRODUCTID,
       NAME,
+      IMAGE,
       DESCN as description,
       CATEGORY as categoryId
     FROM PRODUCT
@@ -20,6 +21,7 @@
     SELECT
       PRODUCTID,
       NAME,
+      IMAGE,
       DESCN as description,
       CATEGORY as categoryId
     FROM PRODUCT
@@ -30,6 +32,7 @@
     select
       PRODUCTID,
       NAME,
+      IMAGE,
       DESCN as description,
       CATEGORY as categoryId
     from PRODUCT

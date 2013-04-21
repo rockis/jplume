@@ -94,12 +94,25 @@ public class TestRequest implements Request {
 		// TODO Auto-generated method stub
 		return null;
 	}
+	
+	@Override
+	public int getIntHeader(String name) {
+		return 0;
+	}
+
+	@Override
+	public String getReferer() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 
 	@Override
 	public Session getSession() {
 		// TODO Auto-generated method stub
 		return null;
 	}
+	
+	
 
 
 	public Map<String, String> getParams() {

@@ -24,3 +24,5 @@ LOCALE = "zh_CN"
 INTERCEPTORS = [
     'jplume.interceptors.CommonInterceptor'
 ]
+
+TEMPLATE_FUNCTIONS = [ 'jplume.petstore.service.PetstoreFunctions' ]

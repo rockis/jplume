@@ -1,20 +1,20 @@
 package jplume.http;
 
-import java.io.IOException;
+import java.io.ByteArrayInputStream;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.io.StringWriter;
 
 import javax.servlet.http.HttpServletResponse;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import jplume.conf.Settings;
 
 public class HttpErrorResponse  extends AbstractResponse {
 
-	private Logger logger = LoggerFactory.getLogger(HttpErrorResponse.class);
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 7019066965418251085L;
 	private String message;
 	private Throwable exception;
 	
@@ -24,6 +24,7 @@ public class HttpErrorResponse  extends AbstractResponse {
 	
 	public HttpErrorResponse(String message, Throwable e) {
 		super(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+		this.contentType = "text/html";
 		this.exception = e;
 		this.message = message == null ? e.getMessage() : message;
 	}
@@ -33,39 +34,18 @@ public class HttpErrorResponse  extends AbstractResponse {
 	}
 
 	@Override
-	public void apply(HttpServletResponse resp) {
-		InputStream is = null;
-		OutputStream os = null;
-		try {
-			super.apply(resp);
-			resp.setContentType("text/html");
+	public InputStream getContent() {
+		StringWriter sw = new StringWriter();
 			
-			PrintWriter w = resp.getWriter();
-			
-			if (Settings.isDebug()) {
-				if (message != null) {
-					w.write("<h1>" + message + "</h1>");
-				}
-				exception.printStackTrace(w);
-			}else{
-				w.write("<h1>Internal Server Error</h1>");
-				w.write("<h2>" + message + "</h2>");
+		if (Settings.isDebug()) {
+			if (message != null) {
+				sw.write("<h1>" + message + "</h1>");
 			}
-		} catch (IOException e) {
-			logger.error(e.getMessage());
-		} finally {
-			if (is != null) {
-				try {
-					is.close();
-				} catch (IOException e) {
-				}
-			}
-			if (os != null) {
-				try {
-					os.close();
-				} catch (IOException e) {
-				}
-			}
+			exception.printStackTrace(new PrintWriter(sw));
+		}else{
+			sw.write("<h1>Internal Server Error</h1>");
+			sw.write("<h2>" + message + "</h2>");
 		}
+		return new ByteArrayInputStream(sw.toString().getBytes());
 	}
 }

@@ -1,15 +1,14 @@
-<#if request.session.user.myList?size gt 0>
+<#if mylist?size gt 0>
 	<p>Pet Favorites <br />
 	Shop for more of your favorite pets here.</p>
 	<ul>
-		<c:forEach var="product" items="${accountBean.myList}">
-			<li><stripes:link
-				beanclass="org.mybatis.jpetstore.web.actions.CatalogActionBean"
-				event="viewProduct">
-				<stripes:param name="productId" value="${product.productId}" />
-			${product.name}
-		</stripes:link> (${product.productId})</li>
-		</c:forEach>
+	   <#list mylist as product>
+	       <li><a href="${ urli('.CatalogAction:index', [ product.categoryId, product.productId ]) }">
+	           ${ product.name }
+	           </a>
+	       </li>
+		  (${product.productId})</li>
+        </#list>
 	</ul>
 
 </#if>

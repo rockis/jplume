@@ -71,7 +71,6 @@ public class AccountAction extends AbstractAction {
 		Request req = Environ.getRequest();
 		Account acc = new Account();
 		try {
-			System.out.println(req.getParam("languagePrefrence"));
 			BeanUtils.populate(acc, req.getParams());
 		} catch (IllegalAccessException e) {
 			// TODO Auto-generated catch block
@@ -80,7 +79,6 @@ public class AccountAction extends AbstractAction {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		System.out.println(acc.getLanguagePreference());
 		accountService.insertAccount(acc);
 		return HttpJsonResponse.ok();
 	}

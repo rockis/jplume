@@ -31,6 +31,11 @@ public abstract class AbstractRequest implements Request {
 	public String getHeader(String name) {
 		return rawRequest.getHeader(name);
 	}
+	
+	@Override
+	public int getIntHeader(String name) {
+		return rawRequest.getIntHeader(name);
+	}
 
 	@Override
 	public String getParam(String key) {
@@ -55,6 +60,10 @@ public abstract class AbstractRequest implements Request {
 			params.put(key, rawRequest.getParameter(key));
 		}
 		return params;
+	}
+	
+	public String getReferer() {
+		return getHeader(HD_REFERER);
 	}
 
 	@Override

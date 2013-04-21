@@ -1,0 +1,105 @@
+<#include "/common/top.html">
+
+<div id="BackLink">
+<a href="${ url('.CatalogAction:index') }">
+	Return to Main Menu
+</a></div>
+
+<div id="Catalog">Please confirm the information below and then
+press continue...
+
+<table>
+	<tr>
+		<th align="center" colspan="2"><font size="4"><b>Order</b></font>
+		<br />
+		<font size="3"><b> 
+		${ order.orderDate?string('yyyy/MM/dd hh:mm:ss') }</b></font>
+		</th>
+	</tr>
+
+	<tr>
+		<th colspan="2">Billing Address</th>
+	</tr>
+	<tr>
+		<td>First name:</td>
+		<td>${order.billToFirstName}</td>
+	</tr>
+	<tr>
+		<td>Last name:</td>
+		<td>${order.billToLastName}</td>
+	</tr>
+	<tr>
+		<td>Address 1:</td>
+		<td>${order.billAddress1}</td>
+	</tr>
+	<tr>
+		<td>Address 2:</td>
+		<td>${order.billAddress2}</td>
+	</tr>
+	<tr>
+		<td>City:</td>
+		<td>${order.billCity}</td>
+	</tr>
+	<tr>
+		<td>State:</td>
+		<td>${order.billState}</td>
+	</tr>
+	<tr>
+		<td>Zip:</td>
+		<td>${order.billZip}</td>
+	</tr>
+	<tr>
+		<td>Country:</td>
+		<td>${order.billCountry}</td>
+	</tr>
+	<tr>
+		<th colspan="2">Shipping Address</th>
+	</tr>
+	<tr>
+		<td>First name:</td>
+		<td>${order.shipToFirstName}</td>
+	</tr>
+	<tr>
+		<td>Last name:</td>
+		<td>${order.shipToLastName}</td>
+	</tr>
+	<tr>
+		<td>Address 1:</td>
+		<td>${order.shipAddress1}</td>
+	</tr>
+	<tr>
+		<td>Address 2:</td>
+		<td>${order.shipAddress2}</td>
+	</tr>
+	<tr>
+		<td>City:</td>
+		<td>${order.shipCity}</td>
+	</tr>
+	<tr>
+		<td>State:</td>
+		<td>${order.shipState}</td>
+	</tr>
+	<tr>
+		<td>Zip:</td>
+		<td>${order.shipZip}</td>
+	</tr>
+	<tr>
+		<td>Country:</td>
+		<td>${order.shipCountry}</td>
+	</tr>
+
+</table>
+<form action="${ url('.OrderAction:submitOrder') }" method="post" id="orderForm">
+<table style="display:none">
+<#include "orderform.html">
+</table>
+<input type="hidden" name="shippingAddressRequired" value="true"/>
+<input type="hidden" name="confirmed" value="true"/>
+<button type="submit">Confirm</button>
+</form>
+</div>
+<#include "/common/bottom.html">
+
+
+
+

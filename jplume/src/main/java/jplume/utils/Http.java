@@ -2,6 +2,7 @@ package jplume.utils;
 
 import java.io.File;
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
@@ -23,6 +24,16 @@ public class Http {
 		Date d = new Date();
 		d.setTime(millseconds);
 		return gmtDateFormat.format(d);
+	}
+	
+	public static final long fromGMT(String gmt) {
+		try {
+			if (gmt == null) return -1;
+			return gmtDateFormat.parse(gmt).getTime();
+		} catch (ParseException | NumberFormatException e) {
+			System.out.println(gmt);
+			return -1;
+		}
 	}
 	
 

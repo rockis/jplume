@@ -91,7 +91,7 @@ a:hover {
   color: #69f;
 }
 
-a.Button, a.Button:link, a.Button:visited {
+button, a.Button:link, a.Button:visited {
   padding: .3ex;
   color: #fff;
   background-color: #005e21;
@@ -100,7 +100,7 @@ a.Button, a.Button:link, a.Button:visited {
   font-size: 1.5ex;
 }
 
-a.Button:hover {
+button:hover {
   color: #000;
   background-color: #54c07a;
 }

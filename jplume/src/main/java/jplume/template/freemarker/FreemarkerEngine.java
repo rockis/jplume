@@ -127,6 +127,10 @@ public class FreemarkerEngine extends TemplateEngine {
 	
 	protected void createFunctions(Map<String, Object> engineConfig, Configuration config, BeansWrapper wrapper) {
 		createFunctions(config, BuiltinFunctions.class, wrapper);
+		List<String> functionNames = Settings.getList("TEMPLATE_FUNCTIONS");
+		for (String funcClass : functionNames) {
+			createFunctions(config, funcClass, wrapper);
+		}
 	}
 	
 	protected void createFunctions(Configuration config, String className, BeansWrapper wrapper) {

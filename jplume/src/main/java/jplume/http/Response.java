@@ -1,6 +1,7 @@
 package jplume.http;
 
-import javax.servlet.http.HttpServletResponse;
+import java.io.InputStream;
+import java.util.Map;
 
 public interface Response {
 
@@ -8,12 +9,14 @@ public interface Response {
 	
 	public void addHeader(String key, String value);
 	
-	public boolean hasHeader(String key);
-	
+	public Map<String, String> getHeaders();
+
 	public int getContentLength();
 	
 	public String getContentType();
-
-	public void apply(HttpServletResponse resp);
+	
+	public String getEncoding();
+	
+	public InputStream getContent();
 	
 }

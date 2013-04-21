@@ -4,12 +4,11 @@
     <a href="${ url('.CatalogAction:index') }">
     Return to Main Menu
     </a>
-<div id="Catalog">
-
+</div>
 <div id="Cart">
 
 <h2>Shopping Cart</h2>
-    <form action="" method="post">
+<form action="${ url('.CartAction:update') }" method="post" id="updateForm">
 	<table>
 		<tr>
 			<th><b>Item ID</b></th>
@@ -26,8 +25,7 @@
 			<tr>
 				<td colspan="8"><b>Your cart is empty.</b></td>
 			</tr>
-        </#if>
-        
+        <#else>        
         <#list cart.cartItems as cartItem>
 			<tr>
 				<td>
@@ -41,7 +39,9 @@
 				${cartItem.item.attribute5?default('')} ${cartItem.item.product.name}</td>
 				<td>${cartItem.inStock?string('yes', 'no')}</td>
 				<td>
-				    ${ cartItem.quantity }</td>
+				    <input type="text" name="${ cartItem.item.itemId}" value="${ cartItem.quantity }"/>
+				   
+				</td>
 				<td>
 				    ${ cartItem.item.listPrice?string('$#,##0.00') }
 				</td>
@@ -49,25 +49,25 @@
 				    ${ cartItem.total?string('$#,##0.00') }
 				</td>
 				<td>
-				    <button onclick="removeItemFromCart('${ cartItem.item.itemId }')">Remove</button>
+				    <button type="button" onclick="removeItemFromCart('${ cartItem.item.itemId }')">Remove</button>
                 </td>
 			</tr>
         </#list>
+
 		<tr>
-			<td colspan="7">Sub Total:
+			<td colspan="8">Sub Total:
 			     ${ cart.subTotal?string('$#,##0.00') }
-			<button>Update Cart</button>
+			<button type="button" onclick="updateCart()">Update Cart</button>
 			</td>
 			<td>&nbsp;</td>
 		</tr>
+		</#if>
 	</table>
-    </form> 
-    ${ cart.class }
     <#if cart?exists && cart.allCartItems?size gt 0>
     <a href="${ url('.OrderAction:newOrder') }">Proceed to Checkout</a>
     </#if>
 </div>
-
+</form>
 <div id="MyList">
     <#if request.session.user?exists && request.session.user.listOption?size gt 0>
         <#include "mylist.html" >
@@ -76,4 +76,21 @@
 
 <div id="Separator">&nbsp;</div>
 </div>
+
+<script type="text/javascript" src="/js/jquery.js"></script>
+<script type="text/javascript" src="/js/jquery-nform.js"></script>
+<script>
+function removeItemFromCart(itemId) {
+	$.post('${ url(".CartAction:remove") }', { itemId : itemId }, function() {document.location.reload() } );
+}
+
+function updateCart() {
+	$('#updateForm').nform('submit');
+}
+$('#updateForm').nform({
+	onSuccess : function() {
+		document.location.reload();
+	}
+})
+</script>
 <#include "/common/bottom.html">
