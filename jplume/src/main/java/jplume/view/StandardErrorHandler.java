@@ -11,6 +11,7 @@ import java.util.regex.Pattern;
 import jplume.conf.Settings;
 import jplume.conf.URLResolveProvider;
 import jplume.conf.URLVisitor;
+import jplume.http.HttpResponseDelegate;
 import jplume.http.Request;
 import jplume.http.Response;
 import jplume.template.TemplateEngine;
@@ -25,7 +26,12 @@ public class StandardErrorHandler implements ErrorHandler {
 	}
 	
 	public Response handle403(Request request) {
-		return tplEngine.render(getClass(), "403.html");
+		return new HttpResponseDelegate(tplEngine.render(getClass(), "403.html")) {
+			@Override
+			public int getStatus() {
+				return 403;
+			}
+		};
 	}
 	
 	public Response handle404(Request request) {
@@ -39,7 +45,12 @@ public class StandardErrorHandler implements ErrorHandler {
 		});
 		Map<String, Object> data = new HashMap<>();
 		data.put("patterns", patterns);
-		return tplEngine.render(getClass(), "404.html", data);
+		return new HttpResponseDelegate(tplEngine.render(getClass(), "404.html", data)) {
+			@Override
+			public int getStatus() {
+				return 404;
+			}
+		};
 	}
 	
 	public Response handle500(Request request, Throwable e) {
@@ -50,6 +61,12 @@ public class StandardErrorHandler implements ErrorHandler {
 		except.printStackTrace(new PrintWriter(sw));
 		data.put("stacktrace", sw.toString());
 		data.put("exception", except);
-		return tplEngine.render(getClass(), "500.html", data);
+		return new HttpResponseDelegate(tplEngine.render(getClass(), "500.html", data)) {
+			@Override
+			public int getStatus() {
+				return 500;
+			}
+			
+		};
 	}
 }

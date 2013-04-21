@@ -2,9 +2,9 @@
 
 <link rel="stylesheet" href="/js/jquery-nform/jquery-nform.css" type="text/css">
 
-<div id="Catalog">
+<div class="container">
 
-	<form class="nform" id="registerForm" action="${ url('.AccountAction:doRegister')  }" method="POST" autocomplete="off">
+	<form class="nform form-horizontal" id="registerForm" action="${ url('.AccountAction:doRegister')  }" method="POST" autocomplete="off">
 
 	<h3>User Information</h3>
 
@@ -24,12 +24,11 @@
 	</table>
 	<#include "accountinfo.html">
 
-	<button type="button" onclick="$('#registerForm').nform('submit')">Save Account Information</button> 
+	<button type="button" class="btn btn-primary" onclick="$('#registerForm').nform('submit')">Save Account Information</button> 
 
 	</form>	
 </div>
 
-<script type="text/javascript" src="/js/jquery.js"></script>
 <script type="text/javascript" src="/js/jquery-nform.js"></script>
 <script>
 $('#registerForm').nform({

@@ -1,20 +1,23 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
 
 <head>
-  <title>JPetStore Demo</title>
-  <link rel="StyleSheet" href="css/jpetstore.css" type="text/css" media="screen"/>
+  <title>JPlume Petstore</title>
+  <link rel="StyleSheet" href="${base}/css/bootstrap.min.css" type="text/css"/>
+  <style>
+  body { text-align:center}
+  .title { font-size:60px;height:100px}
+  </style>
 </head>
 
 <body>
-<div id="Content">
-  <h2>Welcome to JPetStore 6</h2>
-
-  <p><a href="${url('.CatalogAction:index')}">Enter the Store</a></p>
-
-  <p><sub>Copyright www.mybatis.org </sub></p>
+<div class="container">
+    <a class="brand" href="https://github.com/rockis/jplume">JPlume</a>
+</div>
+<div class="container" style="margin-top:120px">
+  <h1 class="title">JPlume Petstore</h1>
+  <button class="btn btn-success btn-large" onclick="document.location.href='${url('.CatalogAction:index')}'">Enter the Store</button>
 
 </div>
 </body>

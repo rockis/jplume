@@ -1,23 +1,35 @@
 <#include "/common/top.html">
 
-<link rel="stylesheet" href="/js/jquery-nform/jquery-nform.css" type="text/css">
+<div class="container">
 
-<div id="Catalog">
-
-	<form id="loginform" class="nform" action="${ url('.AccountAction:doSignIn') }" method="post">
-	<p>Please enter your username and password.</p>
-	<p>Username:<input type="text" name="username" value="jplume" /> <br />
-	Password:<input type="text" name="password" value="petstore" /></p>
-	<input type="button" name="signon" value="Login" onclick="$('#loginform').nform('submit')"/>
+	<form id="loginform" class="nform form-horizontal" action="${ url('.AccountAction:doSignIn') }" method="post">
+    <div class="control-group">
+	    <label class="control-label" for="inputEmail">Username</label>
+	    <div class="controls">
+	      <input type="text" name="username" id="username" value="jplume" placeholder="Username">
+	    </div>
+    </div>
+    <div class="control-group">
+        <label class="control-label" for="inputEmail">Password</label>
+        <div class="controls">
+          <input type="password" name="password" id="password" value="petstore" placeholder="Password">
+        </div>
+    </div>
+    <div class="control-group">
+	    <div class="controls">
+	      <label class="comment">
+            Need a user name and password? 
+		    <a href="${ url('.AccountAction:register') }">Register Now! </a>
+	      </label>
+	      <button type="button" class="btn btn-primary"  onclick="$('#loginform').nform('submit')">Sign in</button>
+	    </div>
+	</div>
 	</form>
-	Need a user name and password? 
-	<a href="${ url('.AccountAction:register') }">
-	Register Now!
-	</a>
+	
 </div>
-<script type="text/javascript" src="/js/jquery.js"></script>
-<script type="text/javascript" src="/js/jquery-nform.js"></script>
+<script type="text/javascript" src="${base}/js/jquery-nform.js"></script>
 <script>
+
 $('#loginform').nform({
     onSuccess: function() {
         document.location.href = "${ url('.CatalogAction:index') }";

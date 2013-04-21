@@ -78,7 +78,7 @@
 					<scanIntervalSeconds>10</scanIntervalSeconds>
 					<stopKey>foo</stopKey>
 					<stopPort>9000</stopPort>
-					<contextPath>/</contextPath>
+					<contextPath>/petstore</contextPath>
 					<systemProperties>
 						<systemProperty>
 							<name>org.eclipse.jetty.util.URI.charset</name>

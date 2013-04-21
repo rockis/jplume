@@ -31,7 +31,6 @@ public class Http {
 			if (gmt == null) return -1;
 			return gmtDateFormat.parse(gmt).getTime();
 		} catch (ParseException | NumberFormatException e) {
-			System.out.println(gmt);
 			return -1;
 		}
 	}

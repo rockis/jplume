@@ -15,32 +15,6 @@ pre {
   white-space: pre
 }
 
-h1 {
-  margin: 1ex 0ex 1ex 0ex;
-  padding: 0ex;
-
-  line-height: 3ex;
-  font-weight: 900;
-  color: #666;
-}
-
-h2 {
-  margin: 2ex 0ex 1ex 0ex;
-  padding: 0ex;
-
-  line-height: 2ex;
-  font-weight: 700;
-  color: #444;
-}
-
-h3 {
-  margin: 1ex 0ex 1ex 0ex;
-  padding: 0ex;
-
-  line-height: 1.6ex;
-  font-weight: 700;
-  color: #222;
-}
 
 p {
   font-family: helvetica, tahoma, arial, verdana, sans-serif;
@@ -58,21 +32,6 @@ li {
 
   margin: 0ex 0ex 0ex 0ex;
   padding: 0ex;
-}
-
-table {
-  border-width: 0;
-  empty-cells: show;
-}
-
-td, th {
-  empty-cells: show;
-  padding: .3ex .3ex;
-  vertical-align: top;
-  text-align: left;
-  border-width: 0;
-  border-spacing: 0;
-  background-color: #ececec
 }
 
 th {

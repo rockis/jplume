@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import jplume.core.Environ;
 import jplume.view.View;
 
 public class URLReverser {
@@ -159,7 +160,7 @@ public class URLReverser {
 		if (url.charAt(url.length() - 1) == '$') {
 			end--;
 		}
-		return url.substring(start, end);
+		return Environ.getContextPath() + url.substring(start, end);
 	}
 	
 	public <T> String match(String pattern, CloseBracket<T> cb, T vars) {

@@ -68,7 +68,11 @@ public abstract class AbstractRequest implements Request {
 
 	@Override
 	public String getPath() {
-		return rawRequest.getServletPath();
+		String path = rawRequest.getServletPath();
+		if (path.length() > 0 && path.endsWith("/")) {
+			return path.substring(0, path.length() - 1);
+		}
+		return path;
 	}
 
 	@Override

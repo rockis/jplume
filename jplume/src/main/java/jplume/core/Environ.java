@@ -39,7 +39,9 @@ public class Environ {
 	}
 
 	public static String getContextPath() {
-		return getContext().getContextPath();
+		if (getContext() != null)
+			return getContext().getContextPath();
+		return "";
 	}
 	
 	public static String getRealPath(String resource) {

@@ -6,9 +6,9 @@
 	</a>
 </div>
 
-<div id="Catalog">
+<div class="container">
 
-<table>
+<table class="table">
 	<tr>
 		<td><image src="${base}/images/${product.image}"> ${product.description?default('')}</td>
 	</tr>
@@ -39,15 +39,12 @@
 
 	<tr>
 		<td>
-			<button onclick="addToCart('${ item.itemId }')">Add to Cart</button>
+			<button class="btn" onclick="addToCart('${ item.itemId }')">Add to Cart</button>
 		</td>
 	</tr>
 </table>
 
 </div>
-
-<script type="text/javascript" src="/js/jquery.js"></script>
-
 <script>
 function addToCart(itemId) {
 	var url = "${ url('.CartAction:add') }?itemId=" + itemId;
