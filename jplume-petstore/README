@@ -1,0 +1,5 @@
+1. cd jplume
+2. maven install
+3. cd jplume-petstore
+4. maven jetty:run
+5. open http://localhost:8080/ in your browser
