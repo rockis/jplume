@@ -19,7 +19,6 @@
 			<groupId>jplume</groupId>
 			<artifactId>jplume</artifactId>
 			<version>0.1</version>
-			<scope>runtime</scope>
 		</dependency>
 		
 		<dependency>
@@ -65,9 +64,11 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
+				<version>2.3.2</version>
 				<configuration>
 					<source>1.7</source>
 					<target>1.7</target>
+					<encoding>UTF-8</encoding>    
 				</configuration>
 			</plugin>
 			<plugin>
@@ -78,7 +79,7 @@
 					<scanIntervalSeconds>10</scanIntervalSeconds>
 					<stopKey>foo</stopKey>
 					<stopPort>9000</stopPort>
-					<contextPath>/petstore</contextPath>
+					<contextPath>/</contextPath>
 					<systemProperties>
 						<systemProperty>
 							<name>org.eclipse.jetty.util.URI.charset</name>

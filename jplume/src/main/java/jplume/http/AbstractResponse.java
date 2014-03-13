@@ -26,7 +26,6 @@ public abstract class AbstractResponse implements Response, Serializable{
 	
 	public AbstractResponse(int code) {
 		this.status = code;
-		
 	}
 
 	public int getStatus() {

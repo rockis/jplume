@@ -29,30 +29,68 @@ public class HttpResponse extends AbstractResponse {
 		this.encoding = encoding;
 	}
 	
+	/**
+	 * 
+	 * @param status HTTP status code
+	 */
 	public HttpResponse(int status) {
 		super(status);
 	}
 	
+	/**
+	 * 
+	 * @param status HTTP status code
+	 * @param content Response content
+	 */
 	public HttpResponse(int status, InputStream content) {
 		this(status, content, Settings.getDefaultContentType(), null);
 	}
 	
+	/**
+	 * 
+	 * @param status  HTTP status code
+	 * @param content Response content
+	 * @param contentType The contentType of response
+	 */
 	public HttpResponse(int status, InputStream content, String contentType) {
 		this(status, content, contentType, null);
 	}
 	
+	/**
+	 * Create a response instance
+	 * @param status HTTP status code
+	 * @param content Response content
+	 * @return
+	 */
 	public static Response create(int status, String content) {
 		return new HttpResponse(status, new ByteArrayInputStream(content.getBytes()));
 	}
 	
+	/**
+	 * 
+	 * @param status HTTP status code
+	 * @param content  Response content
+	 * @param contentType  The contentType of response
+	 * @return
+	 */
 	public static Response create(int status, String content, String contentType) {
 		return new HttpResponse(status, new ByteArrayInputStream(content.getBytes()), contentType);
 	}
 	
+	/**
+	 * Returns 200 OK response
+	 * @param content Response content
+	 * @return 
+	 */
 	public static Response ok(String content) {
 		return create(HttpServletResponse.SC_OK, content);
 	}
 	
+	/**
+	 * Returns 302 redirect response
+	 * @param url The location to which user's browser should be redirected
+	 * @return
+	 */
 	public static Response redirect(String url) {
 		HttpResponse resp = new HttpResponse(302);
 		if (url.charAt(0) == '/') {
@@ -61,6 +99,13 @@ public class HttpResponse extends AbstractResponse {
 		return resp;
 	}
 	
+	/**
+	 * Returns 302 redirect response
+	 * 
+	 * @param clazz The view method's class
+	 * @param methodName The view method's name
+	 * @return
+	 */
 	public static Response redirect(Class<?> clazz, String methodName) {
 		return redirect(Environ.reverseURL(clazz, methodName));
 	}
@@ -94,7 +139,18 @@ public class HttpResponse extends AbstractResponse {
 		return new HttpErrorResponse(message, e);
 	}
 	
-	
+	/**
+	 * Returns Json response, the response's format 
+	 * <pre>
+	 * {
+	 * 	   result : <b>result</b>
+	 * 	   contents : <b>data</b>
+	 * }
+	 * </pre>
+	 * @param result The result, eg. 'ok' or 'error'
+	 * @param data The contents of response, <b>data</b> will be convert to a json string.
+	 * @return
+	 */
 	public static Response json(String result, Object data) {
 		Map<String, Object> errResp = new HashMap<String, Object>();
 		errResp.put("result", result);
@@ -128,6 +184,9 @@ public class HttpResponse extends AbstractResponse {
 		return json("error", data);
 	}
 	
+	/**
+	 * Returns contents of this response
+	 */
 	public InputStream getContent() {
 		return content;
 	}

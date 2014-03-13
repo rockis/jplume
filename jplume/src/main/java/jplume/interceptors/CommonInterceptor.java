@@ -49,7 +49,7 @@ public class CommonInterceptor extends InterceptorAdapter {
 		
 		if (debug) {
 			long duration = new Date().getTime() - reqTime.get();
-			String log = String.format(printFormat, new Date(), request.getMethod(), request.getRequestURL(), response.getStatus(), duration, response.getContentLength());
+			String log = String.format(printFormat, new Date(), request.getMethod(), request.getPath(), response.getStatus(), duration, response.getContentLength());
 			if (response.getStatus() == 200)
 				System.out.println(log);
 			else
